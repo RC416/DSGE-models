@@ -1,2 +1,2 @@
 # DSGE-models
- Implementation of simple DSGE model with Python and Julia
+ Implementation of a simple DSGE model with Python and Julia
