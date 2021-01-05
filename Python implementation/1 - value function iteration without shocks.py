@@ -30,12 +30,7 @@ iterations = 100
 # create range of capital - must have positive log term of Bellman equation
 k_steady = ((1-beta*(1-delta))/(alpha*beta*1)) ** (1/(alpha-1))    # = 100.44 
 k_values = [k_steady * x/10000 for x in range(9800, 10201, 10)]    #  -2% to +2% of k_steady 
-
-
-# get values of Z and transition probabilities from Excel sheets
-z_values = pd.read_excel('Z.xlsx', header=None, index_col=0)
-z_probs  = pd.read_excel('Zprob.xlsx', header=0, index_col=0)     # from "row state" to "col state"
-
+k_values = [round(k,2) for k in k_values]
 
 # create Bellman value function
 # stores function value for each Kt value (column index), in each iteration (row index)
