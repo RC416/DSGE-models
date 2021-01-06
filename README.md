@@ -19,9 +19,9 @@ In my testing, I found that Julia was not faster than Python (slower if anything
 
 Steps 2. and 3. used the math and numpy packages. I hypothesize that steps 2. and 3. are the bottleneck and using the precompiled packages let Python be just as fast as Julia. 
 
-Overall pros/cons of the languages for this applicaton.
+# Overall pros/cons of the languages for this applicaton.
 
-Python:
+## Python:
 Pros
 - Great support since the language is mature with large user base.
 - Excellent selection of packages for nearly any task.
@@ -31,7 +31,7 @@ Cons
 - Old langauge which may carry some poor design choices.
 
 
-Julia
+## Julia
 Pros
 - Simple syntax which is similar to Python.
 - Speed approaching the fast languages (c, c++, fortran).
