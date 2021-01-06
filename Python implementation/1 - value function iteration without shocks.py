@@ -22,12 +22,12 @@ from math import log
 alpha = 0.400
 beta  = 0.987
 delta = 0.012
-iterations = 100
+iterations = 1000
 
 
 # create range of capital - must have positive log term of Bellman equation
 k_steady = ((1-beta*(1-delta))/(alpha*beta*1)) ** (1/(alpha-1))    # = 100.44 
-k_values = [k_steady * x/10000 for x in range(9800, 10201, 20)]    #  -2% to +2% of k_steady 
+k_values = [k_steady * x/10000 for x in range(9800, 10201, 4)]    #  -2% to +2% of k_steady 
 k_values = [round(k,2) for k in k_values]
 
 # create Bellman value function
