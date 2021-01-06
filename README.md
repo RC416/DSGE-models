@@ -36,8 +36,8 @@ Pros
 - Simple syntax which is similar to Python.
 - Speed approaching the fast languages (c, c++, fortran).
 - Some nice frills like unicode characters and having useful constants/functions loaded automatically.
-- Can use Python packages, including plotting in Julia.
+- Can use Python packages, including plotting.
 
 Cons
 - VSCode is the only supported IDE (as of Jan 2021). My initial imporession is that it is less user frendly than R Studio and Spyder (for R and Python, respectively) for doing work with data.
-- Limited support as user base is small and language is still new (version 1.5 as of Jan 2021).
+- Less support as user base is small and language is still new (version 1.5 as of Jan 2021).
