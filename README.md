@@ -5,6 +5,7 @@ I wanted to compare Python and Julia for solving dynamic macroeconomic models. I
 - Is Julia meaningfully faster than Python for this task?
 - Is Julia a suitable alternative to something like c++ for writing fast code?
 - Are there other notable advantages/disadvantages to Julia?
+- Can these benefts be achieved "out of the box" by a novice user
 
 Unfortunately, Julia did not shine in this application. It was not faster than Python and was not otherwise better. I liked some of the available features and plan to try it in other projects.
 
@@ -28,7 +29,6 @@ Pros
 
 Cons
 - Requires coding in a second language (such as c or c++) or a precompiled package to acheive top speeds.
-- Old langauge which may carry some poor design choices.
 
 
 ## Julia
@@ -41,3 +41,5 @@ Pros
 Cons
 - VSCode is the only supported IDE (as of Jan 2021). My initial imporession is that it is less user frendly than R-Studio and Spyder (my chosen IDEs for R and Python, respectively) for doing work with data.
 - Less support as user base is small and language is still new (version 1.5 as of Jan 2021).
+
+Months later I coded an implementation of BLP in Julia as a first major project. In it I enjoyed the clean syntax, easy parallelization, and satisfactory package library.
