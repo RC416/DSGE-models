@@ -39,7 +39,7 @@ Pros
 - Can use Python packages, including plotting.
 
 Cons
-- VSCode is the only supported IDE (as of Jan 2021). My initial imporession is that it is less user frendly than R-Studio and Spyder (my chosen IDEs for R and Python, respectively) for doing work with data.
+- VSCode is the only supported IDE (as of Jan 2021). My initial impression is that it is less user frendly than R-Studio and Spyder (my chosen IDEs for R and Python, respectively) for doing work with data.
 - Less support as user base is small and language is still new (version 1.5 as of Jan 2021).
 
 Months later I coded an implementation of BLP in Julia as a first major project. In it I enjoyed the clean syntax, easy parallelization, and satisfactory package library.
