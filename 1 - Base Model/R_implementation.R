@@ -1,7 +1,5 @@
 # Base Model implementation in R
 
-# Load packages.
-
 # Assign parameter values.
 alpha = 0.400
 beta  = 0.987
@@ -24,7 +22,6 @@ Policy_Function = array(0, c(number_of_iterations, number_of_k_values))
 # Perform value function iteration.
 for (iteration in 2:number_of_iterations)
   {
-  
     for (ind_kt0 in 1:number_of_k_values)       # for each level of starting capital...
     {
       # Variables to store candidate optimal values for Value Function and Policy Function.
@@ -68,8 +65,3 @@ plot(k_values, k_values, type="l", lty=2, col="black",
      main = "Policy Function", xlab = "k", ylab = "g(k)")
 lines(k_values, Policy_Function[number_of_iterations,], col="blue")
 legend("topleft", legend = c("g(k)", "45-degree line"), col=c("blue","black"), lty=c(1,2))
-
-
-
-
-

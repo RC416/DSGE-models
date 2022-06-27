@@ -69,18 +69,3 @@ ax.plot(k_values,k_values, '--', color='k', linewidth=0.8)
 ax.set(xlabel='k', ylabel='g(k)', title="Policy Function")
 ax.legend(["g(k)", "45-degree line"])
 plt.show()
-
-
-"""
-Notes on syntax:
-    
-The Value Function and Policy Function are stored as arrays where 
-the indices correspond to the iteration number and the starting 
-level of capital (kt), resepectively. 
-
-enumerate() creates tuples for each element in a list where
-  kt0[1] is a value in the list k_values
-  kt0[0] is the corresponding index.
-      Example: kt1=(5, 100.44)
-
-"""
