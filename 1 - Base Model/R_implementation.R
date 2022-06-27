@@ -1,7 +1,5 @@
 # Base Model implementation in R
 
-# Load packages.
-
 # Assign parameter values.
 alpha = 0.400
 beta  = 0.987
