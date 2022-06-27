@@ -18,27 +18,25 @@ int main()
 	const int number_of_iterations = 1000;
 
 	// Calculate steady-state level of capital.
-	double k_steady = pow(((1 - beta * (1 - delta)) / (alpha * beta)), (1 / (alpha - 1)));  // pow(base, exponent) = base^exponent
+	double k_steady = pow(((1 - beta * (1 - delta)) / (alpha * beta)), (1 / (alpha - 1)));
 
 	// Create range of capital values around steady-state.
 	const int number_of_k_values = 201;
 	const double k_low_pct = 0.50;
 	const double k_high_pct = 1.50;
 	double k_values[number_of_k_values];
-	//std::vector<double> k_values(number_of_k_values);
 
 	for (int i = 0; i < number_of_k_values; i++)
 	{
 		k_values[i] = k_low_pct*k_steady + (double(i) / (number_of_k_values-1)) * ((k_high_pct - k_low_pct)*k_steady);
-		// std::cout << k_values[i] << "\n"; // to view the range of values
 	}
 
-	// Create value function and policy function 2D arrays.
+	// Initialize Value Function and Policy Function (as arrays).
 	double** Value_Function = InitiateArray_2D(number_of_iterations, number_of_k_values);
 	double** Policy_Function = InitiateArray_2D(number_of_iterations, number_of_k_values);
 	for (int i=0;i<number_of_k_values;i++)
 	{
-		Value_Function[0][i] = 0.0; // assign value of 0 to first value function 
+		Value_Function[0][i] = 0.0; // assign value of 0 to first Value Function iteration
 	}
 
 	// Perform value function iteration.
@@ -111,7 +109,6 @@ int main()
 }
 
 
-
 // Function to dynamically allocate memory for a 2-dimensional array.
 double** InitiateArray_2D(int n_rows, int n_cols)
 {
@@ -125,7 +122,7 @@ double** InitiateArray_2D(int n_rows, int n_cols)
 	return Array_2D;
 }
 
-// Function to clear the memory allocated to for a 2-dimensional array.
+// Function to clear the memory allocated for a 2-dimensional array.
 void DeleteArray_2D(double** Array_2D, int n_rows, int n_cols)
 {
 	for (int i = 0; i < n_rows; i++)
