@@ -1,4 +1,4 @@
-// Base Model implementation in c++
+// Base Model implementation in C++
 
 #include <iostream>
 #include <cmath>
@@ -109,6 +109,7 @@ int main()
 	std::cin.get();
 	return 0;
 }
+
 
 
 // Function to dynamically allocate memory for a 2-dimensional array.
