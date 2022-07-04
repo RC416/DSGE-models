@@ -1,4 +1,6 @@
-# Base Model implementation in Julia.
+#=
+Base Model implementation in Julia.
+=#
 
 # Assign parameter values.
 α = 0.400;
@@ -22,36 +24,40 @@ Policy_Function = zeros(number_of_iterations, number_of_k_values);
 # Perform value function iteration.
 for iteration in 2:number_of_iterations
 
-    for kt0 in 1:number_of_k_values      # for each level of starting capital...
+    for kt0_index in eachindex(k_values)      # for each level of starting capital...
         
         # Calculate Value Function for given starting capital and next period capital choice.
         v_max = -Inf;
         kt1_optimal = 0;
 
-        for kt1 in 1:number_of_k_values  # ...check all next period capital choices 
+        for kt1_index in eachindex(k_values)  # ...check all next period capital choices 
+            
+            # Get capital values from index.
+            kt0 = k_values[kt0_index];
+            kt1 = k_values[kt1_index];
 
             # Calculate value of Value Function for given starting capital and next period capital choice.
-            new_value_function_value = log(k_values[kt0]^α - k_values[kt1] - (1-δ)*k_values[kt0]) + β*Value_Function[iteration-1, kt1];
+            new_value_function_value = log(kt0^α + (1-δ)*kt0 - kt1) + β*Value_Function[iteration-1, kt1_index];
 
             # Check if this capital choice gives highest Value Function value.
             if new_value_function_value > v_max
 
                 # Update candidate values.
                 v_max = new_value_function_value;
-                kt1_optimal = k_values[kt1];
+                kt1_optimal = kt1;
             end
         end
         
         # Update Value Function and Policy function with optimal values.
-        Value_Function[iteration, kt0] = v_max;
-        Policy_Function[iteration, kt0] = kt1_optimal;
+        Value_Function[iteration, kt0_index] = v_max;
+        Policy_Function[iteration, kt0_index] = kt1_optimal;
     end
 end
 
 # Plot various iterations of the Value Function.
 using Plots
 Figure1 = plot(k_values, Value_Function[1,:], label="1")
-for iteration = 1:number_of_iterations/10:number_of_iterations
+for iteration = number_of_iterations/10:number_of_iterations/10:number_of_iterations
     plot!(k_values, Value_Function[Int(iteration),:], label=string(Int(iteration)))
 end
 xlabel!("k")

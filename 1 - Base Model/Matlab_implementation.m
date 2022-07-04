@@ -22,44 +22,49 @@ Policy_Function = zeros(number_of_iterations, number_of_k_values);
 % Perform value function iteration.
 for iteration = 2:(number_of_iterations)
     
-    for ind_kt0 = 1:number_of_k_values      % for each level of starting captial...
+    for kt0_index = 1:number_of_k_values      % for each level of starting captial...
         
         % Variables to store candidate optimal values for Value Function and Policy Function.
         v_max = -inf;
         kt1_optimal = 0;
 
-        for ind_kt1 = 1:number_of_k_values  % ...check all next period capital choices
+        for kt1_index = 1:number_of_k_values  % ...check all next period capital choices
+
+            % Get capital values from index.
+            kt0 = k_values(kt0_index);
+            kt1 = k_values(kt1_index);
 
             % Calculate Value Function for given starting capital and next period capital choice.
-            new_value_function_value = log((k_values(ind_kt0)^alpha) - k_values(ind_kt1) + (1-delta)*k_values(ind_kt0))...
-                + beta*Value_Function(iteration-1, ind_kt1);
+            new_value_function_value = log((kt0^alpha) + (1-delta)*kt0 - kt1)...
+                                        + beta*Value_Function(iteration-1, kt1_index);
             
             % Check if this capital choice gives highest Value Function value.
             if new_value_function_value > v_max
                 
                 % Update candidate values.
                 v_max = new_value_function_value;
-                kt1_optimal = k_values(ind_kt1);
+                kt1_optimal = kt1;
             end
         end
 
         % Update Value Function and Policy Function with optimal values.
-        Value_Function(iteration, ind_kt0) = v_max;
-        Policy_Function(iteration, ind_kt0) = kt1_optimal;
+        Value_Function(iteration, kt0_index) = v_max;
+        Policy_Function(iteration, kt0_index) = kt1_optimal;
     end
 end
 
 % Plot various iterations of the Value Function.
 figure(1)
+plot(k_values, Value_Function(1,:))
 hold on
-for iteration = 1:number_of_iterations/10:number_of_iterations
+for iteration = number_of_iterations/10:number_of_iterations/10:number_of_iterations
     plot(k_values, Value_Function(iteration,:))
 end
 hold off
 xlabel('k')
 ylabel('V(k)')
 title('Value Function')
-legend(string(1:number_of_iterations/10:number_of_iterations))
+legend(["1", string(number_of_iterations/10:number_of_iterations/10:number_of_iterations)])
 
 % Plot final Policy Function.
 figure(2)

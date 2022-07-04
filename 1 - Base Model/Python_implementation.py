@@ -58,7 +58,7 @@ import matplotlib.pyplot as plt
 fig, ax = plt.subplots()
 for iteration in range(0,number_of_iterations, int(number_of_iterations/10)):
     ax.plot(k_values, Value_Function[iteration,])
-ax.set(xlabel='kt', ylabel='V(kt)', title="Value Function")
+ax.set(xlabel='k', ylabel='V(k)', title="Value Function")
 ax.legend(range(1,number_of_iterations+1, int(number_of_iterations/10)), loc='right')
 plt.show()
 

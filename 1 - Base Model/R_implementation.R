@@ -22,30 +22,33 @@ Policy_Function = array(0, c(number_of_iterations, number_of_k_values))
 # Perform value function iteration.
 for (iteration in 2:number_of_iterations)
   {
-    for (ind_kt0 in 1:number_of_k_values)       # for each level of starting capital...
+    for (kt0_index in 1:number_of_k_values)       # for each level of starting capital...
     {
       # Variables to store candidate optimal values for Value Function and Policy Function.
       v_max = -Inf
       kt1_optimal = 0
      
-         for (ind_kt1 in 1:number_of_k_values)
+         for (kt1_index in 1:number_of_k_values)
          {
+           # Get capital values from index.
+           kt0 = k_values[kt0_index]
+           kt1 = k_values[kt1_index]
+           
            # Calculate value of Value Function for given starting capital and next period capital choice.
-           new_value_function_value = log((k_values[ind_kt0]^alpha) - k_values[ind_kt1] + (1-delta)*k_values[ind_kt0]) +
-             beta*Value_Function[iteration-1, ind_kt1]
+           new_value_function_value = log((kt0^alpha) + (1-delta)*kt0 - kt1) + beta*Value_Function[iteration-1, kt1_index]
            
            # Check if this capital choice gives highest Value Function value.
            if (new_value_function_value > v_max)
            {
              # Update candidate values.
              v_max = new_value_function_value
-             kt1_optimal = k_values[ind_kt1]
+             kt1_optimal = kt1
            }
          }
      
      # Update Value Function and Policy Function with optimal values.
-     Value_Function[iteration, ind_kt0] = v_max
-     Policy_Function[iteration, ind_kt0] = kt1_optimal
+     Value_Function[iteration, kt0_index] = v_max
+     Policy_Function[iteration, kt0_index] = kt1_optimal
      }
 }
 
@@ -53,11 +56,12 @@ for (iteration in 2:number_of_iterations)
 # Plot various iterations of the Value Function.
 plot(c(min(k_values),max(k_values)), c(min(Value_Function),max(Value_Function)), type="l", col="white", # hidden values to establish plot size
      main = "Value Function", xlab="k", ylab="V(k)")
-for (iteration in seq(1,number_of_iterations, number_of_iterations/10))
+lines(k_values, Value_Function[1,])
+for (iteration in seq(number_of_iterations/10,number_of_iterations, number_of_iterations/10))
 {
   lines(k_values, Value_Function[iteration,])
 }
-legend("right", legend = seq(1,number_of_iterations, number_of_iterations/10))
+legend("right", legend = c(1,seq(number_of_iterations/10,number_of_iterations, number_of_iterations/10)))
 
 
 # Plot final Policy Function.
