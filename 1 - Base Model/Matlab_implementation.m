@@ -58,7 +58,7 @@ figure(1)
 plot(k_values, Value_Function(1,:))
 hold on
 for iteration = number_of_iterations/10:number_of_iterations/10:number_of_iterations
-    plot(k_values, Value_Function(iteration,:))
+    plot(k_values, Value_Function(number_of_iterations,:))
 end
 hold off
 xlabel('k')

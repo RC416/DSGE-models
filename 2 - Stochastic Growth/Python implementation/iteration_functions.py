@@ -20,22 +20,24 @@ Version
     v4: precompiled with numba and using numpy arrays instead of for-loop
 """
 
-# Import parameter values.
-from Python_implementation import (alpha, beta, delta, k_values, z_probs)
 import numpy as np
 from math import log
 
-"""
-Version 1 - using only base functions + for-loops.
-"""
-
-def Iterate_Value_Function_v1(Previous_Value_Function, kt0, zt):
+# -----------------------------------------------------------------------------------------------------
+# Version 1 - using only base functions + for-loops.
+# -----------------------------------------------------------------------------------------------------
+def Iterate_Value_Function_v1(Previous_Value_Function, kt0, zt, params):
+    
+    # Unpack utility parameters and grids.
+    alpha,beta,delta = params.alpha, params.beta, params.delta
+    k_values = params.k_values
+    z_probs = params.z_probs
     
     # Variables to store candidate optimal values for Value Function and Policy Function.
     v_max = -float('inf')
     kt1_optimal = 0.0
         
-    # Search over possible next period capital choices
+    # Search over possible next period capital choices.
     for kt1 in enumerate(k_values):
         
         # Calculate value function for choice of next period capital.
@@ -52,11 +54,15 @@ def Iterate_Value_Function_v1(Previous_Value_Function, kt0, zt):
     return v_max, kt1_optimal
 
 
-"""
-Version 2 - using Numpy arrays / broadcast instead of for-loop.
-"""
-
-def Iterate_Value_Function_v2(Previous_Value_Function, kt0, zt):
+# -----------------------------------------------------------------------------------------------------
+# Version 2 - using Numpy arrays / broadcast instead of for-loop.
+# -----------------------------------------------------------------------------------------------------
+def Iterate_Value_Function_v2(Previous_Value_Function, kt0, zt, params):
+    
+    # Unpack utility parameters and grids.
+    alpha,beta,delta = params.alpha, params.beta, params.delta
+    k_values = params.k_values
+    z_probs = params.z_probs
     
     # Calculate array of value function values for all k_values.
     V_max_values = (np.log( zt[1]*(kt0[1]**alpha) + (1-delta)*kt0[1] - k_values) 
@@ -72,14 +78,18 @@ def Iterate_Value_Function_v2(Previous_Value_Function, kt0, zt):
     return v_max, kt1_optimal
 
 
-"""
-Version 3 - precompiled with numba and using for-loops.
-"""           
-      
+# -----------------------------------------------------------------------------------------------------
+# Version 3 - precompiled with numba and using for-loops.
+# -----------------------------------------------------------------------------------------------------
 from numba import jit
 
 @jit(nopython=True)    
-def Iterate_Value_Function_v3(Previous_Value_Function, kt0, zt):
+def Iterate_Value_Function_v3(Previous_Value_Function, kt0, zt, params):
+    
+    # Unpack utility parameters and grids.
+    alpha,beta,delta = params.alpha, params.beta, params.delta
+    k_values = params.k_values
+    z_probs = params.z_probs
     
     # Variables to store candidate optimal values for Value Function and Policy Function.
     v_max = 0.0
@@ -103,14 +113,18 @@ def Iterate_Value_Function_v3(Previous_Value_Function, kt0, zt):
     return v_max, kt1_optimal 
 
 
-"""
-Version 4 - precompiled with numba and using numpy arrays instead of for-loop.
-"""
-            
+# -----------------------------------------------------------------------------------------------------
+# Version 4 - precompiled with numba and using numpy arrays instead of for-loop.
+# -----------------------------------------------------------------------------------------------------    
 from numba import jit
 
 @jit(nopython=True)                      
-def Iterate_Value_Function_v4(Previous_Value_Function, kt0, zt):
+def Iterate_Value_Function_v4(Previous_Value_Function, kt0, zt, params):
+    
+    # Unpack utility parameters and grids.
+    alpha,beta,delta = params.alpha, params.beta, params.delta
+    k_values = params.k_values
+    z_probs = params.z_probs
     
     # Calculate array of value function values for all k_values.
     V_max_values = (np.log( zt[1]*(kt0[1]**alpha) + (1-delta)*kt0[1] - k_values) 
@@ -124,29 +138,3 @@ def Iterate_Value_Function_v4(Previous_Value_Function, kt0, zt):
     v_max = V_max_values[kt1_ind_optimal]
     
     return v_max, kt1_optimal
-
-  
-"""
-Alternative to importing parameters: 
-    re-define parameters here. May be needed to use parallel implementation.
-"""
-"""
-# Assign parameter values.
-alpha = 0.400
-beta  = 0.987
-delta = 0.012
-
-# Calculate the steady-state level of capital.
-k_steady = ((1-beta*(1-delta))/(alpha*beta*1)) ** (1/(alpha-1))  
-
-# Create a range of capital values around steady-state (+/- 2%).
-number_of_k_values = 201
-k_low_pct = 0.98
-k_high_pct = 1.02
-k_values = np.linspace(k_low_pct*k_steady, k_high_pct*k_steady, num=number_of_k_values)
-
-# Get productivity levels and transition probabilities.
-z_probs = np.genfromtxt("Inputs\z_probs.csv", delimiter=",")
-z_values = np.genfromtxt("Inputs\z_values.csv", delimiter=",")
-number_of_z_values = len(z_values)
-"""

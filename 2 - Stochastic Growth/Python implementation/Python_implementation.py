@@ -1,10 +1,19 @@
 # -*- coding: utf-8 -*-
 """
 Stochastic Growth model implemented in Python.
+
+Steps:
+    1 - Define utility parameters, grids, and parameter struct.
+    2 - Create function to solve Value Function for given starting states.
+    3 - Perform value function iteration.
+    4 - Plot results.
 """
 
 import numpy as np
 
+# -----------------------------------------------------------------------------------------------------
+# 1 - Define utility parameters, grids, and parameter struct.
+# -----------------------------------------------------------------------------------------------------
 # Assign parameter values.
 alpha = 0.400
 beta  = 0.987
@@ -30,8 +39,28 @@ Value_Function = np.zeros((number_of_iterations, number_of_k_values, number_of_z
 Policy_Function = np.zeros((number_of_iterations, number_of_k_values, number_of_z_values))
 
 
-# Create function to solve Value Function for given starting states.
-def Iterate_Value_Function(Previous_Value_Function, kt0, zt):
+# Store utility parameters and capital/productivity grids in a struct for passing to a function.
+from typing import NamedTuple # could also use dataclass from dataclasses module
+
+class Parameters(NamedTuple):
+    alpha: float
+    beta:  float
+    delta: float
+    k_values: float
+    z_values: float
+    z_probs:  float
+    
+params = Parameters(alpha, beta, delta, k_values, z_values, z_probs)
+
+# -----------------------------------------------------------------------------------------------------
+# 2 - Create function to solve Value Function for given starting states.
+# -----------------------------------------------------------------------------------------------------
+def Iterate_Value_Function(Previous_Value_Function, kt0, zt, params):
+    
+    # Unpack utility parameters and grids.
+    alpha, beta, delta = params.alpha, params.beta, params.delta
+    k_values = params.k_values
+    z_probs = params.z_probs
     
     # Calculate array of value function values for all k_values.
     V_max_values = (np.log( zt[1]*(kt0[1]**alpha) + (1-delta)*kt0[1] - k_values) 
@@ -46,8 +75,9 @@ def Iterate_Value_Function(Previous_Value_Function, kt0, zt):
     
     return v_max, kt1_optimal
 
-
-# Perform value function iteration.
+# -----------------------------------------------------------------------------------------------------
+# 3 - Perform value function iteration.
+# -----------------------------------------------------------------------------------------------------
 for iteration in range(1,number_of_iterations):
     
     # Loop over all possible starting states.
@@ -55,12 +85,14 @@ for iteration in range(1,number_of_iterations):
         for zt in enumerate(z_values):
             
             # Solve Value Function and Policy Function and update values.
-            V, g = Iterate_Value_Function(Value_Function[iteration-1,:,:], kt0, zt)
+            V, g = Iterate_Value_Function(Value_Function[iteration-1,:,:], kt0, zt, params)
             
             Value_Function[iteration, kt0[0], zt[0]]  = V
             Policy_Function[iteration, kt0[0], zt[0]] = g
             
-            
+# -----------------------------------------------------------------------------------------------------
+# 4 - Plot results.
+# ----------------------------------------------------------------------------------------------------- 
 # Plot Value Function for different starting states.
 import matplotlib.pyplot as plt
 fig, ax = plt.subplots()
@@ -77,5 +109,5 @@ for z_ind in z_indices:
     ax.plot(k_values, Policy_Function[number_of_iterations-1,:,z_ind])
 ax.plot(k_values,k_values, '--', color='k', linewidth=0.8)
 ax.set(xlabel='k', ylabel='g(k,z)', title="Policy Function")
-ax.legend(np.flip(z_values[z_indices]).round(2), loc='right', title="zt value")
+ax.legend(np.flip(z_values[z_indices]).round(2), loc='right', title="z value")
 plt.show()

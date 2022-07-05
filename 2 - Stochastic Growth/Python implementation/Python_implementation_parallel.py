@@ -12,28 +12,12 @@ Using 1000 iterations takes approximately 20 minutes to run.
 import numpy as np
 from datetime import datetime
 
-# Parallel implementation requires definition of these variables in this file.
-# It may also require definition ofthese variables in the iteration_function module.
+# Import parameter values and struct.
+from Python_implementation import (alpha,beta,delta,k_values,number_of_k_values,z_values,z_probs,number_of_z_values, Parameters)
+params = Parameters(alpha, beta, delta, k_values, z_values, z_probs)
 
-# Assign parameter values.
-alpha = 0.400
-beta  = 0.987
-delta = 0.012
-number_of_iterations = 10
-
-# Calculate the steady-state level of capital.
-k_steady = ((1-beta*(1-delta))/(alpha*beta*1)) ** (1/(alpha-1))  
-
-# Create a range of capital values around steady-state (+/- 2%).
-number_of_k_values = 201
-k_low_pct = 0.98
-k_high_pct = 1.02
-k_values = np.linspace(k_low_pct*k_steady, k_high_pct*k_steady, num=number_of_k_values)
-
-# Get productivity levels and transition probabilities.
-z_probs = np.genfromtxt("Inputs\z_probs.csv", delimiter=",")
-z_values = np.genfromtxt("Inputs\z_values.csv", delimiter=",")
-number_of_z_values = len(z_values)
+# Assign additional parameter values.
+number_of_iterations = 1000
 
 # Initialize Value Function and Policy Function (as arrays).
 Value_Function = np.zeros((number_of_iterations, number_of_k_values, number_of_z_values))
@@ -41,7 +25,6 @@ Policy_Function = np.zeros((number_of_iterations, number_of_k_values, number_of_
 
 
 # Load the various versions of the key value function iteration function.
-import iteration_functions
 from iteration_functions import (Iterate_Value_Function_v1, Iterate_Value_Function_v2,
                                  Iterate_Value_Function_v3, Iterate_Value_Function_v4)
 
@@ -66,7 +49,7 @@ for (version, Iterate_Value_Function) in functions:
             
             # Get list of Value Function and Policy Function values for each starting state (kt0, zt).
             processed_list = Parallel(n_jobs=num_threads)(delayed(Iterate_Value_Function)
-                                                        (Value_Function[iteration-1,::], kt0, zt)
+                                                        (Value_Function[iteration-1,::], kt0, zt, params)
                                                         for kt0 in enumerate(k_values) for zt in enumerate(z_values))
             
             # Reshape to arrays in the same shape as the Value Function and Policy Function.
