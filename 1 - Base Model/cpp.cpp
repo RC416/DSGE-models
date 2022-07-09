@@ -6,8 +6,8 @@
 #include <cassert>
 
 double** InitiateArray2D(int n_rows, int n_cols);
-void DeleteArray2D(double** Array_2D, int n_rows, int n_cols);
-void WriteArrayToCSV(double** Array_2D, int n_rows, int n_cols, const char* file_name);
+void DeleteArray2D(double** Array2D, int n_rows, int n_cols);
+void WriteArrayToCSV(double** Array2D, int n_rows, int n_cols, const char* file_name);
 
 int main()
 {
