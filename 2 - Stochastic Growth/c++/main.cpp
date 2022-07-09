@@ -1,3 +1,14 @@
+/* 
+Stochastic Growth Model implemented in c++.
+
+Steps:
+	1 - Define utility parameters, grids, and parameter struct.
+	2 - Perform value function iteration.
+	3 - Display results, save results to file, clean up.
+	
+Relies on Iterate_Value_Function and helper functions.
+*/
+
 #include "iteration_functions.h"
 #include <iostream>
 #include <string>
@@ -41,7 +52,7 @@ int main()
 		{
 			z_probs[z1_index][z2_index] = z_probs_csv[z1_index][z2_index];	// copy z_probs to new array
 		}
-		z_values[z1_index] = z_values_csv[z1_index][0];						// copy z_values to new vector from column 0 of vector array
+		z_values[z1_index] = z_values_csv[z1_index][0];				// copy z_values to new vector from column 0 of vector array
 	}
 
 	// Initialize Value Function and Policy Function (as arrays).
