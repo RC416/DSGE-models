@@ -26,7 +26,7 @@ for iteration in 2:number_of_iterations
 
     for kt0_index in eachindex(k_values)      # for each level of starting capital...
         
-        # Calculate Value Function for given starting capital and next period capital choice.
+        # Variables to store candidate optimal values.
         v_max = -Inf;
         kt1_optimal = 0;
 
