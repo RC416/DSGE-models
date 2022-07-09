@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Base Model implementation in Python
-"""
+# Base Model implementation in Python.
 
 # Load packages.
 import numpy as np
