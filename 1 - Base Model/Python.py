@@ -31,7 +31,7 @@ for iteration in range(1,number_of_iterations):
     
     for kt0 in enumerate(k_values):         # for each level of starting capital...
         
-        # Variables to store candidate optimal values for Value Function and Policy Function.
+        # Variables to store candidate optimal values.
         v_max = float('-inf')
         kt1_optimal = 0.0
         
@@ -51,7 +51,6 @@ for iteration in range(1,number_of_iterations):
         # Update Value Function and Policy Function with optimal values. 
         Value_Function[iteration, kt0[0]] = v_max
         Policy_Function[iteration, kt0[0]] = kt1_optimal
-
 
 # Plot various iterations of the Value Function.
 import matplotlib.pyplot as plt
