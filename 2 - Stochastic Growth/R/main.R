@@ -1,4 +1,4 @@
-# Stochastic Growth model implemented in Python.
+# Stochastic Growth model implemented in R.
 # 
 # Steps:
 #     1 - Define utility parameters, grids, and parameter struct.
