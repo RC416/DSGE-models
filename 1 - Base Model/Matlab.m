@@ -1,4 +1,4 @@
-% Base Model implementation in Matlab
+% Base Model implementation in Matlab.
 
 % Assign parameter values.
 alpha = 0.400;
