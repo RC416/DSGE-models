@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Stochastic Growth model implemented in Python.
 
@@ -37,7 +36,6 @@ number_of_z_values = len(z_values)
 # Initialize Value Function and Policy Function (as arrays).
 Value_Function = np.zeros((number_of_iterations, number_of_k_values, number_of_z_values))
 Policy_Function = np.zeros((number_of_iterations, number_of_k_values, number_of_z_values))
-
 
 # Store utility parameters and capital/productivity grids in a struct for passing to a function.
 from typing import NamedTuple # could also use dataclass from dataclasses module
