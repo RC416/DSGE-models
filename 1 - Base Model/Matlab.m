@@ -24,7 +24,7 @@ for iteration = 2:(number_of_iterations)
     
     for kt0_index = 1:number_of_k_values      % for each level of starting captial...
         
-        % Variables to store candidate optimal values for Value Function and Policy Function.
+        % Variables to store candidate optimal values.
         v_max = -inf;
         kt1_optimal = 0;
 
