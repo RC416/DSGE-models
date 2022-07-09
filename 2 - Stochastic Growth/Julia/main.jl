@@ -57,6 +57,7 @@ function Iterate_Value_Function(Previous_Value_Function, kt0_index, zt_index, pa
     # Unpack utility parameters and grids.
     α,β,δ = params.α, params.β, params.δ;
     k_values = params.k_values;
+    z_values = params.z_values;
     z_probs = params.z_probs;
 
     # Get capital and productivity values from index.
