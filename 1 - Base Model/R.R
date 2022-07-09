@@ -1,4 +1,4 @@
-# Base Model implementation in R
+# Base Model implementation in R.
 
 # Assign parameter values.
 alpha = 0.400
@@ -28,7 +28,7 @@ for (iteration in 2:number_of_iterations)
       v_max = -Inf
       kt1_optimal = 0
      
-         for (kt1_index in 1:number_of_k_values)
+         for (kt1_index in 1:number_of_k_values)  # ...check all next period capital choices
          {
            # Get capital values from index.
            kt0 = k_values[kt0_index]
@@ -52,7 +52,6 @@ for (iteration in 2:number_of_iterations)
      }
 }
 
-
 # Plot various iterations of the Value Function.
 plot(c(min(k_values),max(k_values)), c(min(Value_Function),max(Value_Function)), type="l", col="white", # hidden values to establish plot size
      main = "Value Function", xlab="k", ylab="V(k)")
@@ -62,7 +61,6 @@ for (iteration in seq(number_of_iterations/10,number_of_iterations, number_of_it
   lines(k_values, Value_Function[iteration,])
 }
 legend("right", legend = c(1,seq(number_of_iterations/10,number_of_iterations, number_of_iterations/10)))
-
 
 # Plot final Policy Function.
 plot(k_values, k_values, type="l", lty=2, col="black",
