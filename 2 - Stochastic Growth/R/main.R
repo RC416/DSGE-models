@@ -70,7 +70,7 @@ Iterate_Value_Function = function(Previous_Value_Function, kt0_index, zt_index, 
 }
 
 # Alternative: import other versions from script.
-source("iteration_functions.R")
+# source("iteration_functions.R")
 # use Iteration_Function_v1 or Iteration_Function_v2
 
 # -----------------------------------------------------------------------------------------------------
@@ -78,10 +78,12 @@ source("iteration_functions.R")
 # -----------------------------------------------------------------------------------------------------
 for (iteration in 2:number_of_iterations)
 {
+  # Loop over all possible starting states.
   for (kt0_index in 1:number_of_k_values)
   {
     for (zt_index in 1:number_of_z_values)
     {
+      # Solve Value Function and Policy Function and update values.
       result = Iterate_Value_Function(Value_Function[iteration-1,,],kt0_index,zt_index,params)
       
       Value_Function[iteration,kt0_index,zt_index] = result$v_max
