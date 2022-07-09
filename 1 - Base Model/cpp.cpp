@@ -11,7 +11,7 @@ void WriteArrayToCSV(double** Array_2D, int n_rows, int n_cols, const char* file
 
 int main()
 {
-	// Assign initial values.
+	// Assign parameter values.
 	const double alpha = 0.400;
 	const double beta = 0.987;
 	const double delta = 1.000;
@@ -20,7 +20,7 @@ int main()
 	// Calculate steady-state level of capital.
 	double k_steady = pow(((1 - beta * (1 - delta)) / (alpha * beta)), (1 / (alpha - 1)));  // pow(base, exponent) = base^exponent
 
-	// Create range of capital values around steady-state.
+	// Create grid of capital values around steady-state.
 	const int number_of_k_values = 201;
 	const double k_low_pct = 0.50;
 	const double k_high_pct = 1.50;
@@ -31,7 +31,7 @@ int main()
 		k_values[i] = k_low_pct*k_steady + (double(i) / (double(number_of_k_values)-1)) * ((k_high_pct - k_low_pct)*k_steady);
 	}
 
-	// Create value function and policy function 2D arrays.
+	// Initialize Value Function and Policy Function (as arrays).
 	double** Value_Function = InitiateArray2D(number_of_iterations, number_of_k_values);
 	double** Policy_Function = InitiateArray2D(number_of_iterations, number_of_k_values);
 	
