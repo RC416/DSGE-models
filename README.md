@@ -1,5 +1,5 @@
 # DSGE-models
 
-Implementation of 3 basic macro models using various programming languages. 
+Implementation of basic macro models using various programming languages. 
 
 Under construction.
