@@ -1,4 +1,4 @@
-// Base Model implementation in c++
+// Base Model implementation in c++.
 
 #include <iostream>
 #include <cmath>
@@ -20,7 +20,7 @@ int main()
 	// Calculate steady-state level of capital.
 	double k_steady = pow(((1 - beta * (1 - delta)) / (alpha * beta)), (1 / (alpha - 1)));  // pow(base, exponent) = base^exponent
 
-	// Create grid of capital values around steady-state.
+	// Create grid of capital values around steady-state (+/- 50%).
 	const int number_of_k_values = 201;
 	const double k_low_pct = 0.50;
 	const double k_high_pct = 1.50;
@@ -77,7 +77,6 @@ int main()
 	WriteArrayToCSV(Value_Function, number_of_iterations, number_of_k_values, "Value_Function.csv");
 	WriteArrayToCSV(Policy_Function, number_of_iterations, number_of_k_values, "Policy_Function.csv");
 
-
 	// Display the first and last 5 values of the Value Function and Policy Function.
 	for (int i = 0; i < 5; i++)
 	{
@@ -115,28 +114,28 @@ int main()
 // Heap allocation is required here due to the large size of the Value Function and Policy Function arrays.
 double** InitiateArray2D(int n_rows, int n_cols)
 {
-	double** Array_2D;						// 
-	Array_2D = new double* [n_rows];		// 
+	double** Array2D;
+	Array_2D = new double* [n_rows];
 	for (int i = 0; i < n_rows; i++)
 	{
-		Array_2D[i] = new double[n_cols];	// 
+		Array_2D[i] = new double[n_cols];
 	}
 
-	return Array_2D;
+	return Array2D;
 }
 
 // Function to clear the memory allocated for a 2-dimensional array.
-void DeleteArray2D(double** Array_2D, int n_rows, int n_cols)
+void DeleteArray2D(double** Array2D, int n_rows, int n_cols)
 {
 	for (int i = 0; i < n_rows; i++)
 	{
-		delete[] Array_2D[i];
+		delete[] Array2D[i];
 	}
-	delete[] Array_2D;
+	delete[] Array2D;
 }
 
 // Function to write a 2-dimensional array to csv file.
-void WriteArrayToCSV(double** Array_2D, int n_rows, int n_cols, const char* file_name)
+void WriteArrayToCSV(double** Array2D, int n_rows, int n_cols, const char* file_name)
 {
 	std::ofstream write_output(file_name);
 	assert(write_output.is_open());
@@ -145,7 +144,7 @@ void WriteArrayToCSV(double** Array_2D, int n_rows, int n_cols, const char* file
 	{
 		for (int j = 0; j < n_cols; j++)
 		{
-			write_output << Array_2D[i][j] << ",";
+			write_output << Array2D[i][j] << ",";
 		}
 		write_output << "\n";
 	}
