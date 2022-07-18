@@ -4,6 +4,7 @@
 #include <cmath>
 #include <fstream>
 #include <cassert>
+#include <cfloat>
 
 double** InitiateArray2D(int n_rows, int n_cols);
 void DeleteArray2D(double** Array2D, int n_rows, int n_cols);
@@ -115,10 +116,10 @@ int main()
 double** InitiateArray2D(int n_rows, int n_cols)
 {
 	double** Array2D;
-	Array_2D = new double* [n_rows];
+	Array2D = new double* [n_rows];
 	for (int i = 0; i < n_rows; i++)
 	{
-		Array_2D[i] = new double[n_cols];
+		Array2D[i] = new double[n_cols];
 	}
 
 	return Array2D;

@@ -2,7 +2,7 @@
 """
 Three functions with multiple versions:
     1. Solve Household Problem
-        - v1, v2, v3, v4
+        - v1, v2
     2. Solve Value Function
         - Uses Solve Household Problem
     3. Get Population Distribution
@@ -26,8 +26,8 @@ Output:
 Version
     v1: using only base functions + for-loops
     v2: using Numpy arrays / broadcast instead of for-loop
-    v3: precompiled with numba and using for-loops
-    v4: precompiled with numba and using numpy arrays instead of for-loop
+    Using numba @jit precopiling is optional and compatible with both.
+    Must also use numba @jit with Solve Value Function.
 
 -----------------------------------------------------------------------------------------------------
 Function 2: Solve Value Function
@@ -64,94 +64,10 @@ import numpy as np
 # -----------------------------------------------------------------------------------------------------
 # Function 1 - Version 1 - Solve Household Problem using only base functions + for-loops.
 # -----------------------------------------------------------------------------------------------------
-
-def Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params):
-
-    # Unpack utility parameters and grids.
-    s, beta = params.s, params.beta
-    a_grid  = params.a_grid
-    e_grid  = params.e_grid
-    e_probs = params.e_probs
-    
-    # Get value of state variables.
-    a_start = a_grid[a_start_index]
-    e_start = e_grid[e_start_index]
-    
-    # Variables to store candidate optimal values for Value Function and Policy Function.
-    v_max = -float('inf')
-    a_next_optimal = min(a_grid)
-    
-    # Search over possible next period borrowing choices.
-    for a_next in enumerate(a_grid):
-            
-        # Check budget constraint: if consumption is negative, skip this value.
-        if (a_start + e_start - q*a_next[1] <= 0):
-            break
-        
-        # Calculate value function for given choice of next period capital.
-        else:
-            new_v_max = ((a_start + e_start - q*a_next[1]) ** (1 - s))/(1-s) + beta*np.dot(Value_Function[a_next[0],:], e_probs[e_start_index,:])
-            
-        
-        # Check if this capital choice gives highest Value Function value.
-        if new_v_max > v_max:
-        
-            # Update candidate values.
-            v_max = new_v_max
-            a_next_optimal = a_next[1]
-            a_next_index = a_next[0]
-            
-    # Print warning if no credit values are feasible (can happen for q>1).
-    if v_max == -np.Inf: print("Warning: no feasible choice for future credit level, avoid q>1")
-    
-    return v_max, a_next_optimal, a_next_index
-
-# -----------------------------------------------------------------------------------------------------
-# Function 1 - Version 2 - Solve Household Problem using vectorized calculation
-# -----------------------------------------------------------------------------------------------------
-
-def Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params):
-
-    # Unpack utility parameters and grids.
-    s, beta = params.s, params.beta
-    a_grid  = params.a_grid
-    e_grid  = params.e_grid
-    e_probs = params.e_probs
-    
-    # Get value of state variables.
-    a_start = a_grid[a_start_index]
-    e_start = e_grid[e_start_index]
-       
-    # Vector of consumption values dictated by credit selection.
-    Consumption = a_start + e_start - q*a_grid
-    valid_indices = (Consumption > 0)
-    
-    # Print warning if no credit values are feasible (can happen for q>1).
-    if valid_indices.sum() == -np.Inf: 
-        print("Warning: no feasible choice for future credit level, avoid q>1")
-        return
-    
-    # Calculate value function values.
-    V_max_values = np.power(Consumption[valid_indices],(1-s)) / (1-s) + beta*np.dot(Value_Function[(valid_indices),:], e_probs[e_start_index,:])
-
-    # Get index of optimal credit choice within the vector of valid indices.
-    optimal_subindex = np.argmax(V_max_values)
-    
-    # Get values and original index of optimal values.
-    a_next_optimal = (a_grid[valid_indices])[optimal_subindex]
-    v_max = V_max_values[optimal_subindex]
-    a_next_index = np.where(a_grid == a_next_optimal)[0][0]
-    
-    return v_max, a_next_optimal, a_next_index
-
-
-# -----------------------------------------------------------------------------------------------------
-# Function 1 - Version 3 - Solve Household Problem using for-loop precompiled with numba.
-# -----------------------------------------------------------------------------------------------------
 from numba import jit
 
 @jit(nopython=True)
-def Solve_HH_Problem_v3(q, a_start_index, e_start_index, Value_Function, params):
+def Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params):
 
     # Unpack utility parameters and grids.
     s, beta = params.s, params.beta
@@ -179,27 +95,23 @@ def Solve_HH_Problem_v3(q, a_start_index, e_start_index, Value_Function, params)
         else:
             new_v_max = ((a_start + e_start - q*a_next[1]) ** (1 - s))/(1-s) + beta*np.dot(Value_Function[a_next[0],:], e_probs[e_start_index,:])
             
-        
         # Check if this capital choice gives highest Value Function value.
         if new_v_max > v_max:
         
             # Update candidate values.
             v_max = new_v_max
             a_next_optimal = a_next[1]
-            a_next_index = a_next[0]
-            
-    # Print warning if no credit values are feasible (can happen for q>1).
-    if v_max == -np.Inf: print("Warning: no feasible choice for future credit level, avoid q>1")
+            a_next_index   = a_next[0]
     
     return v_max, a_next_optimal, a_next_index
 
 # -----------------------------------------------------------------------------------------------------
-# Function 1 - Version 4 - Solve Household Problem using vectorized calculation precompiled with numba.
+# Function 1 - Version 2 - Solve Household Problem using vectorized calculation
 # -----------------------------------------------------------------------------------------------------
 from numba import jit
 
 @jit(nopython=True)
-def Solve_HH_Problem_v4(q, a_start_index, e_start_index, Value_Function, params):
+def Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params):
 
     # Unpack utility parameters and grids.
     s, beta = params.s, params.beta
@@ -215,17 +127,12 @@ def Solve_HH_Problem_v4(q, a_start_index, e_start_index, Value_Function, params)
     Consumption = a_start + e_start - q*a_grid
     valid_indices = (Consumption > 0)
     
-    # Print warning if no credit values are feasible (can happen for q>1).
-    '''if valid_indices.sum() == -np.Inf: 
-        print("Warning: no feasible choice for future credit level, avoid q>1")
-        return -np.Inf, a_grid[0], 0'''
-    
     # Calculate value function values.
     V_max_values = np.power(Consumption[valid_indices],(1-s)) / (1-s) + beta*np.dot(Value_Function[(valid_indices),:], e_probs[e_start_index,:])
-       
+
     # Get index of optimal credit choice within the vector of valid indices.
     optimal_subindex = np.argmax(V_max_values)
-            
+    
     # Get values and original index of optimal values.
     a_next_optimal = (a_grid[valid_indices])[optimal_subindex]
     v_max = V_max_values[optimal_subindex]
@@ -268,10 +175,8 @@ def Solve_Value_Function(q, params):
             for e_start_index in range(number_of_e_values):
                             
                 # Solve Value Function and Policy Function and update values.
-                #V, g, g_index = Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params) # not compatible wtih @jit compilation of Solve_Value_Function
-                #V, g, g_index = Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params) # not compatible wtih @jit compilation of Solve_Value_Function
-                V, g, g_index = Solve_HH_Problem_v3(q, a_start_index, e_start_index, Value_Function, params)
-                #V, g, g_index = Solve_HH_Problem_v4(q, a_start_index, e_start_index, Value_Function, params)
+                V, g, g_index = Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params) 
+                #V, g, g_index = Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params)
 
 
                 Value_Function_New[a_start_index, e_start_index] = V
