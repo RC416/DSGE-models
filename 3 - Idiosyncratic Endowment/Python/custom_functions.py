@@ -1,16 +1,21 @@
-# -*- coding: utf-8 -*-
 """
 Three functions with multiple versions:
     1. Solve Household Problem
         - v1, v2
     2. Solve Value Function
-        - Uses Solve Household Problem
+        - Uses Solve Household Problem to solve for the
+        value function and policy function
     3. Get Population Distribution
+"""
 
------------------------------------------------------------------------------------------------------
-Function 1: Solve Household Problem
-    
-Function to perform an iteration of value function iteration.
+import numpy as np
+
+"""
+# -----------------------------------------------------------------------------------------------------
+# Function 1 - Version 1 - Solve Household Problem using only base functions + for-loops.
+# -----------------------------------------------------------------------------------------------------
+Function find the next iteration of the Value Function and Policy Function 
+by solving the household's problem for a given starting state.
 Four different versions with increasing levels of performance.
 Each version has identical inputs and outputs.
 
@@ -27,50 +32,15 @@ Version
     v1: using only base functions + for-loops
     v2: using Numpy arrays / broadcast instead of for-loop
     Using numba @jit precopiling is optional and compatible with both.
-    Must also use numba @jit with Solve Value Function.
-
------------------------------------------------------------------------------------------------------
-Function 2: Solve Value Function
-
-Solves for the Value Function and Policy Function using value function iteration.
-Applies Solve Household Problem to all possible starting states for each iteration.
-Search parameters (max iterations, tolerance, etc.) are defined in the function.
-
-Input:
-    - Market price for bond
-    
-Output:
-    - Value Function
-    - Policy Function
-    - Policy Function (with index values)
-        
------------------------------------------------------------------------------------------------------
-Function 3: Get Population Distribution. 
-
-Solves for the steady state distribution over credit-endowment states given
-a policy function (with index values).
-Search parameters (max iterations, tolerance, etc.) are defined in the function.
-
-Input:
-    - Policy Function (with index values)
-
-Output:
-    - Steady-state population distribution
-
-"""
-
-import numpy as np
-
-# -----------------------------------------------------------------------------------------------------
-# Function 1 - Version 1 - Solve Household Problem using only base functions + for-loops.
-# -----------------------------------------------------------------------------------------------------
+    Can also use numba @jit with Solve Value Function.
+"""    
 from numba import jit
 
 @jit(nopython=True)
 def Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params):
 
     # Unpack utility parameters and grids.
-    s, beta = params.s, params.beta
+    sigma, beta = params.sigma, params.beta
     a_grid  = params.a_grid
     e_grid  = params.e_grid
     e_probs = params.e_probs
@@ -81,19 +51,20 @@ def Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params)
     
     # Variables to store candidate optimal values for Value Function and Policy Function.
     v_max = -np.Inf
-    a_next_optimal = a_grid[0]
-    a_next_index = 0
+    a_next_optimal = 0.0
+    a_next_optimal_index = 0
     
     # Search over possible next period borrowing choices.
     for a_next in enumerate(a_grid):
-            
+        
+        # Get the value of consumption implied by the budget constraint.
+        consumption = a_start + e_start - q*a_next[1]
+        
         # Check budget constraint: if consumption is negative, skip this value.
-        if (a_start + e_start - q*a_next[1] <= 0):
-            break
+        if (consumption <= 0): break
         
         # Calculate value function for given choice of next period capital.
-        else:
-            new_v_max = ((a_start + e_start - q*a_next[1]) ** (1 - s))/(1-s) + beta*np.dot(Value_Function[a_next[0],:], e_probs[e_start_index,:])
+        new_v_max = ((consumption)**(1-sigma))/(1-sigma) + beta*np.dot(Value_Function[a_next[0],:], e_probs[e_start_index,:])
             
         # Check if this capital choice gives highest Value Function value.
         if new_v_max > v_max:
@@ -101,9 +72,9 @@ def Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params)
             # Update candidate values.
             v_max = new_v_max
             a_next_optimal = a_next[1]
-            a_next_index   = a_next[0]
+            a_next_optimal_index   = a_next[0]
     
-    return v_max, a_next_optimal, a_next_index
+    return v_max, a_next_optimal, a_next_optimal_index
 
 # -----------------------------------------------------------------------------------------------------
 # Function 1 - Version 2 - Solve Household Problem using vectorized calculation
@@ -114,7 +85,7 @@ from numba import jit
 def Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params):
 
     # Unpack utility parameters and grids.
-    s, beta = params.s, params.beta
+    sigma, beta = params.sigma, params.beta
     a_grid  = params.a_grid
     e_grid  = params.e_grid
     e_probs = params.e_probs
@@ -128,21 +99,34 @@ def Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params)
     valid_indices = (Consumption > 0)
     
     # Calculate value function values.
-    V_max_values = np.power(Consumption[valid_indices],(1-s)) / (1-s) + beta*np.dot(Value_Function[(valid_indices),:], e_probs[e_start_index,:])
+    V_max_values = np.power(Consumption[valid_indices], (1-sigma)) / (1-sigma) + beta*np.dot(Value_Function[(valid_indices),:], e_probs[e_start_index,:])
 
     # Get index of optimal credit choice within the vector of valid indices.
     optimal_subindex = np.argmax(V_max_values)
     
-    # Get values and original index of optimal values.
+    # Get values and original index of optimal value.
     a_next_optimal = (a_grid[valid_indices])[optimal_subindex]
     v_max = V_max_values[optimal_subindex]
-    a_next_index = np.where(a_grid == a_next_optimal)[0][0]
+    a_next_optimal_index = np.where(a_grid == a_next_optimal)[0][0]
     
-    return v_max, a_next_optimal, a_next_index
+    return v_max, a_next_optimal, a_next_optimal_index
 
+"""
 # -----------------------------------------------------------------------------------------------------
 # Function 2 - Solve for Value Function and Policy Function.
 # -----------------------------------------------------------------------------------------------------
+Solves for the Value Function and Policy Function using value function iteration.
+Applies Solve Household Problem to all possible starting states for each iteration.
+Search parameters (max iterations, tolerance, etc.) are defined in the function.
+
+Input:
+    - Market price for bond
+    
+Output:
+    - Value Function
+    - Policy Function
+    - Policy Function (with indices instead of values)
+"""
 from numba import jit
 
 @jit(nopython=True)
@@ -157,9 +141,9 @@ def Solve_Value_Function(q, params):
     Policy_Function = np.zeros((number_of_a_values, number_of_e_values))
     Policy_Function_Index = np.zeros((number_of_a_values, number_of_e_values), dtype=np.int64)
     
-    Value_Function_New = np.zeros((number_of_a_values, number_of_e_values))
-    Policy_Function_New = np.zeros((number_of_a_values, number_of_e_values))
-    Policy_Function_Index_New = np.zeros((number_of_a_values, number_of_e_values), dtype=np.int64)
+    Value_Function_New = Value_Function.copy()
+    Policy_Function_New = Policy_Function.copy()
+    Policy_Function_Index_New = Policy_Function_Index.copy()
     
     # Iteration parameters.
     dist = np.Inf
@@ -177,7 +161,6 @@ def Solve_Value_Function(q, params):
                 # Solve Value Function and Policy Function and update values.
                 V, g, g_index = Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params) 
                 #V, g, g_index = Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params)
-
 
                 Value_Function_New[a_start_index, e_start_index] = V
                 Policy_Function_New[a_start_index, e_start_index] = g
@@ -198,9 +181,20 @@ def Solve_Value_Function(q, params):
     
     return Value_Function, Policy_Function, Policy_Function_Index
 
+"""
 # -----------------------------------------------------------------------------------------------------
-# Function 3 - Version 1 - Get population distribution from policy function
+# Function 3 - Version 1 - Get Population Distribution from Policy Function.
 # -----------------------------------------------------------------------------------------------------
+Solves for the steady state distribution over credit and endowment states given
+a policy function (with index values).
+Search parameters (max iterations, tolerance, etc.) are defined in the function.
+
+Input:
+    - Policy Function (with index values)
+
+Output:
+    - Steady-state population distribution
+"""
 from numba import jit
 
 @jit(nopython=True)
@@ -218,7 +212,6 @@ def Get_Population_Distribution(Policy_Function_Index, params):
     Population_Distribution = np.ones((number_of_a_values, number_of_e_values)) / (number_of_a_values * number_of_e_values)
     New_Distribution = Population_Distribution.copy()
     
-
     # Iteration parameters.
     dist = np.Inf
     iteration_count = 0
@@ -228,7 +221,7 @@ def Get_Population_Distribution(Policy_Function_Index, params):
     # Solve for population distribution.
     while (dist > tolerance) & (iteration_count < max_iterations):
         
-        # Get "inflow" to each credit-endowment state in next period
+        # Get "inflow" to each credit-endowment state in next period.
         for a_index in range(number_of_a_values):
             for e_index in range(number_of_e_values):
                 
@@ -244,7 +237,6 @@ def Get_Population_Distribution(Policy_Function_Index, params):
                 
                 # Sum distribution-weighted inflow into given state.
                 inflow = (np.multiply(Population_Distribution, e_probs[:,e_index]) * inflow_indices).sum()    
-                
                 New_Distribution[a_index, e_index] = inflow
 
         # Update search parameters.

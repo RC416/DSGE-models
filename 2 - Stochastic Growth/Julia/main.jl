@@ -114,7 +114,7 @@ display(Figure1)
 # Plot final Policy Function for certain productivity values.
 z_indices = [1,4,6,8,11]
 Figure2 = plot(k_values, Policy_Function[number_of_iterations,:,z_indices], label=round.(z_values[z_indices], digits=2)', legend=:topleft, legendtitle="z value")
-plot!(k_values,k_values, label="45-degree line", color=:black)
+plot!(k_values,k_values, linestyle=:dash, label="45-degree line", color=:black)
 xlabel!("k")
 ylabel!("g(k,z)")
 title!("Policy Function")

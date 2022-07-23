@@ -19,27 +19,27 @@ from custom_functions import Solve_Value_Function, Get_Population_Distribution
 # -----------------------------------------------------------------------------------------------------
 
 # Endowment parameters.
-e_high = 1.0                                        # high entitlement
-e_low  = 0.1                                        # low entitlement
-e_grid = np.array([e_low, e_high])                  
+e_high = 1.0                                                # high entitlement
+e_low  = 0.1                                                # low entitlement
+e_grid = np.array([e_low, e_high])                          # entitlement grid
 number_of_e_values = 2
-e_probs = np.array([[0.500, 0.500],[0.075, 0.925]]) # transition probabilities
+e_probs = np.array([[0.500, 0.500],[0.075, 0.925]])         # transition probabilities
 
 # Utility parameters.
-beta = 0.99322                                      # discounting factor (1/6th of year)
-s = 1.5                                             # risk aversion coefficient
+sigma = 1.5                                                 # risk aversion coefficient
+beta = 0.99322                                              # discount factor
 
 # Credit parameters.
-a_high = 4                                          # upper credit limit
-a_low  = -2                                         # lower credit limit
-number_of_a_values = 600                            # credit grid size
-a_grid = np.linspace(a_low, a_high, number_of_a_values)
+a_high = 4                                                  # upper credit limit
+a_low  = -2                                                 # lower credit limit / borrowing constraint
+number_of_a_values = 50                                    # credit grid size
+a_grid = np.linspace(a_low, a_high, number_of_a_values)     # credit grid
 
-# Store utility parameters and capital/productivity grids in a struct for passing to a function.
+# Store parameters in a struct for passing to a function.
 from typing import NamedTuple # could also use dataclass from dataclasses module
 
 class Parameters(NamedTuple):
-    s:       float
+    sigma:   float
     beta:    float
     a_grid:  float
     e_grid:  float
@@ -47,7 +47,7 @@ class Parameters(NamedTuple):
     number_of_a_values: int
     number_of_e_values: int
     
-params = Parameters(s, beta, a_grid, e_grid, e_probs, number_of_a_values, number_of_e_values)
+params = Parameters(sigma, beta, a_grid, e_grid, e_probs, number_of_a_values, number_of_e_values)
 
 # -----------------------------------------------------------------------------------------------------
 # 2 - Solve model and get market bond price using binary search.
@@ -57,7 +57,7 @@ params = Parameters(s, beta, a_grid, e_grid, e_probs, number_of_a_values, number
 q_min = 0.985
 q_max = 1.100
 
-# Optional floor for q_min such that those at credit limit can still afford positive consumption.
+# Optional: floor for q_min such that those at credit limit can still afford positive consumption.
 q_min = (a_low + e_low) / a_low
 
 # Placeholder for market clearing condition.
@@ -69,7 +69,7 @@ iteration_count = 0
 max_iterations = 20
 tolerance = 1e-3
 
-# Solve for q.
+# Solve for market price q.
 while (dist > tolerance) & (iteration_count < max_iterations):
     
     # Get value of q from middle of range.
@@ -94,7 +94,7 @@ while (dist > tolerance) & (iteration_count < max_iterations):
     
     # Print results.
     print(f"Iteration {iteration_count}: q={round(q,6)}, mcc={round(mcc,6)}")
-    if iteration_count >= max_iterations: print(f"Warning: value function did not converge after {iteration_count} iterations")
+    if iteration_count >= max_iterations: print(f"Warning: search for q did not converge after {iteration_count} iterations")
     
 # -----------------------------------------------------------------------------------------------------
 # 3 - Plot results.
@@ -106,7 +106,7 @@ fig, ax = plt.subplots()
 ax.plot(a_grid, Policy_Function[:,1])
 ax.plot(a_grid, Policy_Function[:,0])
 ax.plot(a_grid, a_grid, '--', color='k', linewidth=0.8)
-ax.set(xlabel="starting credit level", ylabel="optimal new credit level")
+ax.set(xlabel="starting credit level", ylabel="optimal new credit level", title="Policy Function")
 ax.legend(["high endowment", "low endowment", "45-degree line"], loc='lower right')
 plt.show()
 
