@@ -17,8 +17,8 @@
 # -----------------------------------------------------------------------------------------------------
 # Version 1 - using only base functions + for-loops.
 # -----------------------------------------------------------------------------------------------------
-Iterate_Value_Function_v1 = function(Previous_Value_Function, kt0_index, zt_index, params){
-  
+Iterate_Value_Function_v1 = function(Previous_Value_Function, kt0_index, zt_index, params)
+  {
   # Unpack utility parameters and grids.
   alpha = params$alpha
   beta = params$beta
@@ -56,19 +56,18 @@ Iterate_Value_Function_v1 = function(Previous_Value_Function, kt0_index, zt_inde
   return(list(v_max=v_max, kt1_optimal=kt1_optimal))
 }
   
-
 # -----------------------------------------------------------------------------------------------------
 # Version 2 - using broadcast/vectorized calculation instead of for-loop.
 # -----------------------------------------------------------------------------------------------------
-Iterate_Value_Function_v2 = function(Previous_Value_Function, kt0_index, zt_index, params){
-  
+Iterate_Value_Function_v2 = function(Previous_Value_Function, kt0_index, zt_index, params)
+  {
   # Unpack utility parameters and grids.
-  alpha = params$alpha
-  beta = params$beta
-  delta = params$delta
+  alpha    = params$alpha
+  beta     = params$beta
+  delta    = params$delta
   k_values = params$k_values
   z_values = params$z_values
-  z_probs = params$z_probs
+  z_probs  = params$z_probs
   
   # Get capital and productivity values from index.
   kt0 = k_values[kt0_index]
@@ -77,7 +76,6 @@ Iterate_Value_Function_v2 = function(Previous_Value_Function, kt0_index, zt_inde
   # Calculate array of value function values for all k_values.
   V_max_values = log(zt*(kt0^alpha) + (1-delta)*kt0 - k_values) + 
     beta*drop(Previous_Value_Function %*% z_probs[zt_index,])
-  
   
   # Get the index for the optimal capital choice.
   kt1_index_optimal = which.max(V_max_values)
