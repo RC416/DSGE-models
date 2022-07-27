@@ -102,7 +102,7 @@ for (z_index in 1:number_of_z_values)
 {
   lines(k_values, Value_Function[number_of_iterations,,z_index])
 }
-legend("right", legend = round(rev(z_values),2), title="z values")
+  legend("right", legend = round(rev(z_values),2), title="z values")
 
 # Plot final Policy Function for certain productivity values.
 z_indices = c(1,4,6,8,11)
