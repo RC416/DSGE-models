@@ -29,7 +29,7 @@ int main()
 
 	for (int i = 0; i < number_of_k_values; i++)
 	{
-		k_values[i] = k_low_pct*k_steady + (double(i) / (double(number_of_k_values)-1)) * ((k_high_pct - k_low_pct)*k_steady);
+		k_values[i] = k_steady * (k_low_pct + ((double(i) / (double(number_of_k_values) - 1)) * (k_high_pct - k_low_pct)));
 	}
 
 	// Initialize Value Function and Policy Function (as arrays).
@@ -105,6 +105,7 @@ int main()
 	DeleteArray2D(Value_Function, number_of_iterations, number_of_k_values);
 	DeleteArray2D(Policy_Function, number_of_iterations, number_of_k_values);
 	
+	// Leave window open after program terminates.
 	std::cin.get();
 	return 0;
 }
