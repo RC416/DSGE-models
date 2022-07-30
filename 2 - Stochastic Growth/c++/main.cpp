@@ -9,7 +9,7 @@ Steps:
 Relies on Iterate_Value_Function and helper functions.
 */
 
-#include "iteration_functions.h"
+#include "custom_functions.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -86,7 +86,7 @@ int main()
 		}
 	}
 
-	// Write final Value Function and Policy Function to csv files.
+	// Get slice of Value Function and Policy Function for final iteration.
 	double** Final_Value_Function  = InitializeArray2D(number_of_k_values, number_of_z_values);
 	double** Final_Policy_Function = InitializeArray2D(number_of_k_values, number_of_z_values);
 
@@ -99,6 +99,7 @@ int main()
 		}
 	}
 
+	// Write final Value Function and Policy Function to csv files.
 	WriteArrayToCSV(Final_Value_Function, number_of_k_values, number_of_z_values, "Value_Function.csv");
 	WriteArrayToCSV(Final_Policy_Function, number_of_k_values, number_of_z_values, "Policy_Function.csv");
 
