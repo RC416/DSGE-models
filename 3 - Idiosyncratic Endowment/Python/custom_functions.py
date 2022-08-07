@@ -14,9 +14,9 @@ import numpy as np
 # -----------------------------------------------------------------------------------------------------
 # Function 1 - Version 1 - Solve Household Problem using only base functions + for-loops.
 # -----------------------------------------------------------------------------------------------------
-Function find the next iteration of the Value Function and Policy Function 
+Function to find the next iteration of the Value Function and Policy Function 
 by solving the household's problem for a given starting state.
-Four different versions with increasing levels of performance.
+Two different versions with increasing levels of performance.
 Each version has identical inputs and outputs.
 
 Input:

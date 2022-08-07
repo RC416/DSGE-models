@@ -19,10 +19,9 @@ program main
     integer :: i
     integer :: iteration, kt0_index, kt1_index
 
-    real(8), dimension(number_of_k_values)   :: k_values
-
-    ! Declare Function and Policy Function (as arrays).
+    ! Value Function, Policy Function, and other arrays.
     real(8), dimension(number_of_iterations, number_of_k_values) :: Value_Function, Policy_Function
+    real(8), dimension(number_of_k_values)   :: k_values
 
     ! ---------------------------------------------------------------------------------------------------
     ! Execution Section.
@@ -141,27 +140,3 @@ subroutine write_to_csv_file(Array2D, n_rows, n_cols, file_name)
     close(10)
  
 end subroutine write_to_csv_file
-
-
-
-! Print function syntax:
-! print '2 (A, G0.4))'
-! 2 => two sets of "string + real" will be written
-! A => first variable is string
-! G0.4 => second variable is string. Write with at least 0 characters (i.e. use min columns)
-!       => use 4 decimals places.
-
-! For debugging:
-! gfortran fortran.f08 -g -o base_model.exe
-! gfortran fortran.f08 -fbacktrace -fbounds-check -o base_model.exe
-
-! For release mode:
-! gfortran fortran.f08 -fbounds-check -O2 -o base_model
-
-! add checks/flags for: 
-    ! out-of-bounds references, 
-    ! optimization level (-O0, -O1, -O2, -O3)
-    ! debugging information -g, -fbacktrace
-! gfortran -fbounds-check -O2 -o base_model fortran.f08 
-
-! useful functions: LOG, ABS, SQRT, INT, HUGE(x) = large finite number of type x

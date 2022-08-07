@@ -16,9 +16,9 @@ using LinearAlgebra
 # Function 1 - Version 1 - Solve Household Problem using only base functions + for-loops.
 # -----------------------------------------------------------------------------------------------------
     
-Function find the next iteration of the Value Function and Policy Function 
+Function to find the next iteration of the Value Function and Policy Function 
 by solving the household's problem for a given starting state.
-Four different versions with increasing levels of performance.
+Two different versions with increasing levels of performance.
 Each version has identical inputs and outputs.
 
 Input:
@@ -71,7 +71,7 @@ function Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, pa
             # Update candidate values.
             v_max = new_v_max;
             a_next_optimal = a_next;
-            a_next_optimal_index   = a_next_index;
+            a_next_optimal_index = a_next_index;
         end
     end
     return v_max, a_next_optimal, a_next_optimal_index;
