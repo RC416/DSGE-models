@@ -74,8 +74,8 @@ program main
     end do
 
     ! Write Value Function and Policy Function to csv files.
-    call write_to_csv_file(Value_Function, number_of_iterations, number_of_k_values, "Value_Function.csv")
-    call write_to_csv_file(Policy_Function, number_of_iterations, number_of_k_values, "Policy_Function.csv")
+    call WriteArrayToCSV(Value_Function, number_of_iterations, number_of_k_values, "Value_Function.csv")
+    call WriteArrayToCSV(Policy_Function, number_of_iterations, number_of_k_values, "Policy_Function.csv")
 
     ! Display the first and last 5 values of the Value Function and Policy Function.
     write(*,*) "Value Function V(k)"
@@ -108,7 +108,7 @@ end program
 ! 1 - Write 2-dimensional array to .csv file.
 
 ! 1 - Writes a 2-dimensional array of real(8) numbers (double floating point precision) to a csv file.
-subroutine write_to_csv_file(Array2D, n_rows, n_cols, file_name)
+subroutine WriteArrayToCSV(Array2D, n_rows, n_cols, file_name)
 
     ! -----------------------------------------------------------------------------------------------
     ! Declaration section.
@@ -139,4 +139,4 @@ subroutine write_to_csv_file(Array2D, n_rows, n_cols, file_name)
     ! Close file.
     close(10)
  
-end subroutine write_to_csv_file
+end subroutine WriteArrayToCSV
