@@ -5,6 +5,8 @@ Steps:
 	1 - Define utility parameters, grids, and parameter struct.
 	2 - Perform value function iteration.
 	3 - Display results, save results to file, clean up.
+
+Relies on Solve_Value_Function and helper functions in custom_funcions file.
 */
 
 #include "custom_functions.h"
@@ -23,11 +25,11 @@ int main()
 	// Calculate the steady-state level of capital.
 	double k_steady = pow(((1 - beta * (1 - delta)) / (alpha * beta)), (1 / (alpha - 1)));
 
-	// Create a grid of capital values around the steady-state (+/- 2%).
+	// Create a grid of capital values around steady-state (+/- 2%).
 	int const number_of_k_values = 201;
 	double k_low_pct = 0.98;
 	double k_high_pct = 1.02;
-	vector<double> k_values(number_of_k_values);
+	double k_values[number_of_k_values];
 
 	for (int i = 0; i < number_of_k_values; i++)
 	{
@@ -36,13 +38,13 @@ int main()
 
 	// Get productivity levels and transition probabilities from csv files (as vector arrays).
 	std::string directory = "C:/Users/Ray/Documents/GitHub/DSGE-models/2 - Stochastic Growth/c++/Inputs/";
-	Array2D<double> z_probs = ReadArrayFromCSV(directory + "z_probs.csv");
-	vector<double> z_values = ReadVectorFromCSV(directory + "z_values.csv");
-	int number_of_z_values = z_values.size();
+	double* z_values = ReadVectorFromCSV(directory + "z_values.csv");
+	double** z_probs = ReadArrayFromCSV(directory + "z_probs.csv");
+	int const number_of_z_values = 11;
 
-	// Initialize the Value Function and Policy Function (as arrays).
-	Array3D<double> Value_Function(number_of_iterations, vector<vector<double>>(number_of_k_values, vector<double> (number_of_z_values)));
-	Array3D<double> Policy_Function(number_of_iterations, vector<vector<double>>(number_of_k_values, vector<double>(number_of_z_values)));
+	// Initialize Value Function and Policy Function (as arrays).
+	double*** Value_Function = InitializeArray3D(number_of_iterations, number_of_k_values, number_of_z_values);
+	double*** Policy_Function = InitializeArray3D(number_of_iterations, number_of_k_values, number_of_z_values);
 
 	// Assign value of 0 to first iteration.
 	for (int i = 0; i < number_of_k_values; i++)
@@ -56,24 +58,23 @@ int main()
 
 	// Store utility parameters and capital/productivity grids in a struct for passing to a function.
 	Parameters params = { alpha, beta, delta, number_of_k_values, number_of_z_values, k_values, z_values, z_probs };
-
+	
 	// Perform value function iteration.
 	for (int iteration = 1; iteration < number_of_iterations; iteration++)
 	{
-		// Loop over all possible starting states.
 		for (int kt0_index = 0; kt0_index < number_of_k_values; kt0_index++)
 		{
 			for (int zt_index = 0; zt_index < number_of_z_values; zt_index++)
 			{
-				// Solve the Value Function and Policy Function.
+				// Solve Value Function and Policy Function.
 				Solve_HH_Problem(Value_Function, Policy_Function, iteration, kt0_index, zt_index, params);
 			}
 		}
 	}
 
 	// Get slice of Value Function and Policy Function for final iteration.
-	Array2D<double> Final_Value_Function(number_of_k_values, vector<double>(number_of_z_values));
-	Array2D<double> Final_Policy_Function(number_of_k_values, vector<double>(number_of_z_values));
+	double** Final_Value_Function = InitializeArray2D(number_of_k_values, number_of_z_values);
+	double** Final_Policy_Function = InitializeArray2D(number_of_k_values, number_of_z_values);
 
 	for (int kt0_index = 0; kt0_index < number_of_k_values; kt0_index++)
 	{
@@ -88,7 +89,7 @@ int main()
 	WriteArrayToCSV(Final_Value_Function, number_of_k_values, number_of_z_values, "Value_Function.csv");
 	WriteArrayToCSV(Final_Policy_Function, number_of_k_values, number_of_z_values, "Policy_Function.csv");
 
-	// Display a subset of results: the final Value Function for certain capital and prodcutivity values.
+	// Display subset of results: final Value Function for certain capital and prodcutivity values.
 	for (int kt0_index = 0; kt0_index < 10; kt0_index++)
 	{
 		for (int zt_index = 0; zt_index < number_of_z_values; zt_index++)
@@ -98,6 +99,11 @@ int main()
 		std::cout << "\n";
 	}
 
+	// Remove arrays from memory.
+	DeleteArray3D(Value_Function, number_of_iterations, number_of_k_values, number_of_z_values);
+	DeleteArray3D(Policy_Function, number_of_iterations, number_of_k_values, number_of_z_values);
+	DeleteArray2D(Final_Value_Function, number_of_k_values, number_of_z_values);
+	DeleteArray2D(Final_Policy_Function, number_of_k_values, number_of_z_values);
 	std::cin.get();
 	return 0;
 }
