@@ -34,30 +34,31 @@ program main
     k_pct_high = 1.50
 
     do i = 1, number_of_k_values
-        k_values(i) = k_steady * (k_pct_low + ((real(i,8) - 1) / real(number_of_k_values,8) * (k_pct_high - k_pct_low)))
+        k_values(i) = k_steady * (k_pct_low + ((real(i, 8) - 1) / real(number_of_k_values, 8) * (k_pct_high - k_pct_low)))
     end do
 
     ! Assign value of 0 to first value function iteration.
     where (Value_Function /= 0.0) Value_Function = 0
     where (Policy_Function /= 0.0) Policy_Function = 0
 
-    ! Perform value function iteration.
+    ! Solve the household's problem for each possible starting state.
     do iteration = 2, number_of_iterations      
-        do kt0_index = 1, number_of_k_values        ! for each level of starting capital...
+        do kt0_index = 1, number_of_k_values
             
             ! Initialize variables to store candiate optimal values.
             v_max = -huge(k_steady)
             kt1_optimal = 0.0
             new_value_function_value = 0.0
 
-            do kt1_index = 1, number_of_k_values    ! ... check all next period capital choices
+            ! Check all possible next period capital choices.
+            do kt1_index = 1, number_of_k_values
 
-                ! Calculate Value Function for given starting capital and next period capital choice.
+                ! Calculate the Value Function for given starting capital and next period capital choice.
                 new_value_function_value = &
-                    log(k_values(kt0_index)**alpha + (1-delta)*k_values(kt0_index) - k_values(kt1_index)) &
-                    + beta*Value_Function(iteration - 1, kt1_index)
+                    log(k_values(kt0_index) ** alpha + (1 - delta) * k_values(kt0_index) - k_values(kt1_index)) &
+                    + beta * Value_Function(iteration - 1, kt1_index)
 
-                ! Check if this capital choice gives highest Value Function value.
+                ! Check if this capital choice gives the highest Value Function value.
                 if (new_value_function_value > v_max) then
 
                     ! Update candidate values.
@@ -66,14 +67,14 @@ program main
                 end if
             end do
             
-            ! Update Value Function and Policy Function with optimal values.
+            ! Update the Value Function and Policy Function with optimal values.
             Value_Function(iteration, kt0_index) = v_max
             Policy_Function(iteration, kt0_index) = kt1_optimal
 
         end do
     end do
 
-    ! Write Value Function and Policy Function to csv files.
+    ! Write the Value Function and Policy Function to csv files.
     call WriteArrayToCSV(Value_Function, number_of_iterations, number_of_k_values, "Value_Function.csv")
     call WriteArrayToCSV(Policy_Function, number_of_iterations, number_of_k_values, "Policy_Function.csv")
 
@@ -105,9 +106,8 @@ end program
 
 ! ---------------------------------------------------------------------------------------------------
 ! Subroutines.
-! 1 - Write 2-dimensional array to .csv file.
 
-! 1 - Writes a 2-dimensional array of real(8) numbers (double floating point precision) to a csv file.
+! Writes a 2-dimensional array of real(8) numbers (double floating point precision) to a csv file.
 subroutine WriteArrayToCSV(Array2D, n_rows, n_cols, file_name)
 
     ! -----------------------------------------------------------------------------------------------
@@ -140,3 +140,8 @@ subroutine WriteArrayToCSV(Array2D, n_rows, n_cols, file_name)
     close(10)
  
 end subroutine WriteArrayToCSV
+
+! Compiler instructions.
+! debug mode: gfortran fortran.f08 -g -O0 -Wall -o build.exe
+! release mode: gfortran fortran.f08 -O3 -o build.exe
+! run program: start build

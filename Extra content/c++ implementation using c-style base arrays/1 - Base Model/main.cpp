@@ -5,27 +5,26 @@
 #include <fstream>
 #include <cassert>
 #include <cfloat>
-#include <vector>
 
-// Declarations.
-using std::vector;
-void WriteArrayToCSV(vector<vector<double>> Array2D, const char* file_name);
+double** InitiateArray2D(int n_rows, int n_cols);
+void DeleteArray2D(double** Array2D, int n_rows, int n_cols);
+void WriteArrayToCSV(double** Array2D, int n_rows, int n_cols, const char* file_name);
 
 int main()
 {
 	// Assign parameter values.
-	double alpha = 0.400;
-	double beta = 0.987;
-	double delta = 1.000;
-	int const number_of_iterations = 1000;
+	const double alpha = 0.400;
+	const double beta = 0.987;
+	const double delta = 1.000;
+	const int number_of_iterations = 1000;
 
 	// Calculate the steady-state level of capital.
 	double k_steady = pow(((1 - beta * (1 - delta)) / (alpha * beta)), (1 / (alpha - 1)));  // pow(base, exponent) = base^exponent
 
 	// Create grid of capital values around the steady-state (+/- 50%).
-	int const number_of_k_values = 201;
-	double k_low_pct = 0.50;
-	double k_high_pct = 1.50;
+	const int number_of_k_values = 201;
+	const double k_low_pct = 0.50;
+	const double k_high_pct = 1.50;
 	double k_values[number_of_k_values];
 
 	for (int i = 0; i < number_of_k_values; i++)
@@ -33,9 +32,16 @@ int main()
 		k_values[i] = k_steady * (k_low_pct + ((double(i) / (double(number_of_k_values) - 1)) * (k_high_pct - k_low_pct)));
 	}
 
-	// Initialize the Value Function and Policy Function (as arrays).
-	vector<vector<double>> Value_Function(number_of_iterations, vector<double>(number_of_k_values, 0));
-	vector<vector<double>> Policy_Function(number_of_iterations, vector<double>(number_of_k_values, 0));
+	// Initialize Value Function and Policy Function (as arrays).
+	double** Value_Function = InitiateArray2D(number_of_iterations, number_of_k_values);
+	double** Policy_Function = InitiateArray2D(number_of_iterations, number_of_k_values);
+
+	// Assign value of 0 to first value function iteration.
+	for (int i = 0; i < number_of_k_values; i++)
+	{
+		Value_Function[0][i] = 0.0;
+		Policy_Function[0][i] = 0.0;
+	}
 
 	// Solve the household's problem for each possible starting state.
 	for (int iteration = 1; iteration < number_of_iterations; iteration++)
@@ -47,6 +53,7 @@ int main()
 			double kt1_optimal = 0.0;
 			double new_value_function_value;
 
+			// Check all possible next period capital choices.
 			for (int kt1_ind = 0; kt1_ind < number_of_k_values; kt1_ind++)
 			{
 				// Calculate the Value Function for given starting capital and next period capital choice.
@@ -69,8 +76,8 @@ int main()
 	}
 
 	// Write Value Function and Policy Function to csv files.
-	WriteArrayToCSV(Value_Function, "Value_Function.csv");
-	WriteArrayToCSV(Policy_Function, "Policy_Function.csv");
+	WriteArrayToCSV(Value_Function, number_of_iterations, number_of_k_values, "Value_Function.csv");
+	WriteArrayToCSV(Policy_Function, number_of_iterations, number_of_k_values, "Policy_Function.csv");
 
 	// Display the first and last 5 values of the Value Function and Policy Function.
 	for (int i = 0; i < 5; i++)
@@ -95,17 +102,42 @@ int main()
 		std::cout << "g(" << k_values[i] << ") = " << Policy_Function[number_of_iterations - 1][i] << "\n";
 	}
 
+	// Remove arrays from memory.
+	DeleteArray2D(Value_Function, number_of_iterations, number_of_k_values);
+	DeleteArray2D(Policy_Function, number_of_iterations, number_of_k_values);
+
 	// Leave window open after program terminates.
 	std::cin.get();
 	return 0;
 }
 
-// Function to write a 2-dimensional array to csv file.
-void WriteArrayToCSV(vector<vector<double>> Array2D, const char* file_name)
-{
-	int n_rows = Array2D.size();
-	int n_cols = Array2D[0].size();
 
+// Function to dynamically allocate memory for a 2-dimensional array.
+double** InitiateArray2D(int n_rows, int n_cols)
+{
+	double** Array2D;
+	Array2D = new double* [n_rows];
+	for (int i = 0; i < n_rows; i++)
+	{
+		Array2D[i] = new double[n_cols];
+	}
+
+	return Array2D;
+}
+
+// Function to clear the memory allocated for a 2-dimensional array.
+void DeleteArray2D(double** Array2D, int n_rows, int n_cols)
+{
+	for (int i = 0; i < n_rows; i++)
+	{
+		delete[] Array2D[i];
+	}
+	delete[] Array2D;
+}
+
+// Function to write a 2-dimensional array to csv file.
+void WriteArrayToCSV(double** Array2D, int n_rows, int n_cols, const char* file_name)
+{
 	std::ofstream write_output(file_name);
 	assert(write_output.is_open());
 
