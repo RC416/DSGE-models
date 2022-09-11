@@ -51,7 +51,7 @@ int main()
 			{
 				// Calculate the Value Function for given starting capital and next period capital choice.
 				new_value_function_value = log(pow(k_values[kt0_ind], alpha) - k_values[kt1_ind] + (1 - delta) * k_values[kt0_ind]) +
-					+beta * Value_Function[iteration - 1][kt1_ind];
+					+ beta * Value_Function[iteration - 1][kt1_ind];
 
 				// Check if this capital choice gives highest Value Function value.
 				if (new_value_function_value > v_max)
