@@ -2,7 +2,6 @@
 #   1. Solve Household Problem
 #      - v1, v2
 #   2. Solve Value Function
-#      - Uses Solve Household Problem to solve for the value function and policy function
 #   3. Get Population Distribution
 
 # -----------------------------------------------------------------------------------------------------
@@ -39,25 +38,26 @@ Solve_HH_Problem_v1 = function(q, a_start_index, e_start_index, Value_Function, 
   a_start = a_grid[a_start_index]
   e_start = e_grid[e_start_index]
   
-  # Variables to store candidate optimal values for Value Function and Policy Function.
+  # Variables to store candidate optimal values for the Value Function and Policy Function.
   v_max = -Inf
   a_next_optimal = 0.0
   a_next_optimal_index = 0
   
-  # Search over possible next period borrowing choices.
+  # Check all possible next period borrowing choices.
   for (a_next_index in 1:number_of_a_values)
   {
-    # Get next credit value and the value of consumption implied by the budget constraint.
+    # Get the value of consumption implied by the budget constraint.
     a_next = a_grid[a_next_index]
     consumption = a_start + e_start - q*a_next
     
-    # Check budget constraint: if consumption is negative, skip this value.
+    # Check the budget constraint: if consumption is negative, skip this value.
     if (consumption <= 0) { next }
     
-    # Calculate value function for given choice of next period capital.
-    new_v_max = ((consumption)^(1-sigma))/(1-sigma) + beta*sum(Value_Function[a_next_index, ] * e_probs[e_start_index, ]);
+    # Calculate the Value Function value.
+    new_v_max = ((consumption) ^ (1 - sigma)) / (1 - sigma) + 
+      beta * sum(Value_Function[a_next_index, ] * e_probs[e_start_index, ]);
     
-    # Check if this capital choice gives highest Value Function value.
+    # Check if this capital choice gives the highest Value Function value.
     if (new_v_max > v_max)
     {
       # Update candidate values.
@@ -87,17 +87,17 @@ Solve_HH_Problem_v2 = function(q, a_start_index, e_start_index, Value_Function, 
   a_start = a_grid[a_start_index]
   e_start = e_grid[e_start_index]
   
-  # Vector of consumption values dictated by credit selection.
+  # Vector of consumption values dictated by possible next period borrowing choices.
   Consumption = a_start + e_start - q*a_grid
   valid_indices = (Consumption > 0)
   
-  # Calculate value function values.
+  # Calculate the Value Function values.
   V_max_values = Consumption[valid_indices]^(1-sigma) / (1-sigma) + beta*(Value_Function[valid_indices, ] %*% e_probs[e_start_index, ])
   
-  # Get index of optimal credit choice within the vector of valid indices.
+  # Get the index of the optimal credit choice within the vector of valid indices.
   optimal_subindex = which.max(V_max_values)
   
-  # Get values and original index of optimal value.
+  # Get the values and original index of the optimal value.
   a_next_optimal = (a_grid[valid_indices])[optimal_subindex]
   v_max = V_max_values[optimal_subindex]
   a_next_optimal_index = match(a_next_optimal, a_grid)
@@ -111,7 +111,7 @@ Solve_HH_Problem_v2 = function(q, a_start_index, e_start_index, Value_Function, 
 # Function 2 - Solve for Value Function and Policy Function.
 # -----------------------------------------------------------------------------------------------------
 # Solves for the Value Function and Policy Function using value function iteration.
-# Applies Solve Household Problem to all possible starting states for each iteration.
+# Applies the Solve Household Problem function to all possible starting states for each iteration.
 # Search parameters (max iterations, tolerance, etc.) are defined in the function.
 
 # Input:
@@ -145,7 +145,7 @@ Solve_Value_Function = function(q, params)
   max_iterations = 5000
   tolerance = 1e-6
   
-  # Solve for Value Function and Policy Function.
+  # Solve for the Value Function and Policy Function.
   while ((dist > tolerance) & (iteration_count < max_iterations))
   {
     # Loop over all possible starting states.
@@ -153,7 +153,7 @@ Solve_Value_Function = function(q, params)
     {
       for (e_start_index in 1:number_of_e_values)
       {
-        # Solve Value Function and Policy Function and update values.
+        # Solve the Value Function and Policy Function and update values.
         #result = Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params);
         result  = Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params);
         
@@ -167,7 +167,7 @@ Solve_Value_Function = function(q, params)
     dist = max(abs(Value_Function - Value_Function_New))
     iteration_count = iteration_count + 1
     
-    # Update Value Function.
+    # Update the Value Function and Policy Function.
     Value_Function = Value_Function_New
     Policy_Function = Policy_Function_New
     Policy_Function_Index = Policy_Function_Index_New
@@ -186,7 +186,7 @@ Solve_Value_Function = function(q, params)
 # -----------------------------------------------------------------------------------------------------
 # Function 3 - Get Population Distribution from Policy Function.
 # -----------------------------------------------------------------------------------------------------
-# Solves for the steady state distribution over credit and endowment states given
+# Solves for the steady-state distribution over credit and endowment states given
 # a policy function (with index values).
 # Search parameters (max iterations, tolerance, etc.) are defined in the function.
 
@@ -205,7 +205,7 @@ Get_Population_Distribution = function(Policy_Function_Index, params)
   number_of_a_values = params$number_of_a_values
   number_of_e_values = params$number_of_e_values
   
-  # Arrays to store 2 iterations of finding population distribution.    
+  # Arrays to store 2 iterations of finding the population distribution.    
   Population_Distribution = array(1, c(number_of_a_values, number_of_e_values)) / (number_of_a_values * number_of_e_values)
   New_Distribution = Population_Distribution
   
@@ -215,15 +215,15 @@ Get_Population_Distribution = function(Policy_Function_Index, params)
   max_iterations = 5000
   tolerance = 1e-10
   
-  # Solve for population distribution.
+  # Solve for the steady-state Population Distribution.
   while ((dist > tolerance) & (iteration_count < max_iterations))
   {
-    # Get "inflow" to each credit-endowment state in next period.
+    # Get "inflow" to each credit-endowment state in the next period.
     for (a_index in 1:number_of_a_values)
     {
       for (e_index in 1:number_of_e_values)
       {
-        # Sum distribution-weighted inflow into given state.
+        # Sum the distribution-weighted inflow into the given state.
         inflow = sum( (Population_Distribution * (Policy_Function_Index == a_index)) %*% e_probs[ ,e_index] )
         New_Distribution[a_index, e_index] = inflow
       }
@@ -233,7 +233,7 @@ Get_Population_Distribution = function(Policy_Function_Index, params)
     dist = sum(abs(Population_Distribution - New_Distribution))
     iteration_count = iteration_count + 1
     
-    # Update population distribution.
+    # Update the Population Distribution.
     Population_Distribution = New_Distribution
     
     # Print warning if convergence is not achieved.

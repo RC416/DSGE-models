@@ -1,6 +1,6 @@
 % Function 1: Solve Household Problem (version 2)
 %     
-% Function to find the next iteration of the Value Function and Policy Function 
+% Function to find the next iteration of the Value Function and Policy Function  
 % by solving the household's problem for a given starting state.
 % Two different versions with increasing levels of performance.
 % Each version has identical inputs and outputs.
@@ -32,17 +32,17 @@ e_probs = params.e_probs;
 a_start = a_grid(a_start_index);
 e_start = e_grid(e_start_index);
 
-% Vector of consumption values dictated by credit selection.
+% Vector of consumption values dictated by possible next period borrowing choices.
 Consumption = a_start + e_start - q*a_grid;
 valid_indices = (Consumption > 0);
 
-% Calculate value function values.
+% Calculate the Value Function values.
 V_max_values = (Consumption(valid_indices).^(1-sigma))./(1-sigma) + beta*(Value_Function(valid_indices,:)*e_probs(e_start_index,:)')';
 
-% Get value and index of optimal value.
+% Get the value and index of optimal value.
 [v_max, optimal_subindex] = max(V_max_values);
 
-% Get values and original index of optimal value.
+% Get the values and original index of optimal value.
 a_grid_valid = a_grid(valid_indices);
 a_next_optimal = a_grid_valid(optimal_subindex);
 a_next_optimal_index = find(a_grid == a_next_optimal);

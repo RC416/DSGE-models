@@ -1,7 +1,7 @@
 % Function 2: Solve Value Function
 % 
 % Solves for the Value Function and Policy Function using value function iteration.
-% Applies Solve Household Problem to all possible starting states for each iteration.
+% Applies the Solve Household Problem function to all possible starting states for each iteration.
 % Search parameters (max iterations, tolerance, etc.) are defined in the function.
 % 
 % Input:
@@ -34,16 +34,16 @@ iteration_count = 0;
 max_iterations = 5000;
 tolerance = 1e-6;
 
-% Solve for Value Function and Policy Function.
+% Solve for the Value Function and Policy Function.
 while (dist > tolerance) & (iteration_count < max_iterations)
 
     % Loop over all possible starting states.
     for a_start_index = 1:number_of_a_values
         for e_start_index = 1:number_of_e_values
                         
-            % Solve Value Function and Policy Function and update values.
-            %[V, g, g_index] = Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params);
-            [V, g, g_index] = Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params);
+            % Solve the Value Function and Policy Function and update values.
+            [V, g, g_index] = Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params);
+            %[V, g, g_index] = Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params);
 
             Value_Function_New(a_start_index, e_start_index) = V;
             Policy_Function_New(a_start_index, e_start_index) = g;
@@ -55,7 +55,7 @@ while (dist > tolerance) & (iteration_count < max_iterations)
     dist = max(abs(Value_Function - Value_Function_New), [], 'all');
     iteration_count = iteration_count + 1;
 
-    % Update Value Function.
+    % Update the Value Function and Policy Function.
     Value_Function = Value_Function_New;
     Policy_Function = Policy_Function_New;
     Policy_Function_Index = Policy_Function_Index_New;

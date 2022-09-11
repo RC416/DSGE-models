@@ -90,7 +90,7 @@ for iteration in 2:number_of_iterations
     for kt0_index in eachindex(k_values), zt_index in eachindex(z_values)
 
         # Solve the Value Function and Policy Function and update values.
-        V, g = Iterate_Value_Function(Value_Function[iteration-1, :, :], kt0_index, zt_index, params);
+        V, g = Solve_HH_Problem(Value_Function[iteration-1, :, :], kt0_index, zt_index, params);
 
         Value_Function[iteration, kt0_index, zt_index] = V;
         Policy_Function[iteration, kt0_index, zt_index] = g;

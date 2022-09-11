@@ -1,6 +1,6 @@
 % Function 1: Solve Household Problem (version 1)
 %     
-% Function to find the next iteration of the Value Function and Policy Function 
+% Function to find the next iteration of the Value Function and Policy Function  
 % by solving the household's problem for a given starting state.
 % Two different versions with increasing levels of performance.
 % Each version has identical inputs and outputs.
@@ -33,7 +33,7 @@ number_of_a_values = params.number_of_a_values;
 a_start = a_grid(a_start_index);
 e_start = e_grid(e_start_index);
 
-% Variables to store candidate optimal values for Value Function and Policy Function.
+% Variables to store candidate optimal values for the Value Function and Policy Function.
 v_max = -Inf;
 a_next_optimal = 0.0;
 a_next_optimal_index = 0;
@@ -48,10 +48,10 @@ for a_next_index = 1:number_of_a_values
     % Check budget constraint: if consumption is negative, skip this value.
     if (consumption <= 0); break; end
     
-    % Calculate value function for given choice of next period capital.
-    new_v_max = ((consumption)^(1-sigma))/(1-sigma) + beta*dot(Value_Function(a_next_index,:), e_probs(e_start_index,:));
+    % Calculate the Value Function value.
+    new_v_max = ((consumption) ^ (1 - sigma)) / (1 - sigma) + beta * dot(Value_Function(a_next_index, :), e_probs(e_start_index, :));
 
-    % Check if this capital choice gives highest Value Function value.
+    % Check if this capital choice gives the highest Value Function value.
     if new_v_max > v_max
 
         % Update candidate values.

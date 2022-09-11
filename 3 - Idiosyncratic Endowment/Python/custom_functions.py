@@ -1,10 +1,8 @@
 """
-Three functions with multiple versions:
-    1. Solve Household Problem
+Three key functions:
+    1. Solve Household 
         - v1, v2
     2. Solve Value Function
-        - Uses Solve Household Problem to solve for the
-        value function and policy function
     3. Get Population Distribution
 """
 
@@ -49,30 +47,30 @@ def Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params)
     a_start = a_grid[a_start_index]
     e_start = e_grid[e_start_index]
     
-    # Variables to store candidate optimal values for Value Function and Policy Function.
+    # Variables to store candidate optimal values for the Value Function and Policy Function.
     v_max = -np.Inf
     a_next_optimal = 0.0
     a_next_optimal_index = 0
     
-    # Search over possible next period borrowing choices.
+    # Check all possible next period borrowing choices.
     for a_next in enumerate(a_grid):
         
         # Get the value of consumption implied by the budget constraint.
         consumption = a_start + e_start - q*a_next[1]
         
-        # Check budget constraint: if consumption is negative, skip this value.
+        # Check the budget constraint: if consumption is negative, skip this value.
         if (consumption <= 0): break
         
-        # Calculate value function for given choice of next period capital.
-        new_v_max = ((consumption)**(1-sigma))/(1-sigma) + beta*np.dot(Value_Function[a_next[0],:], e_probs[e_start_index,:])
+        # Calculate the Value Function value.
+        new_v_max = ((consumption) ** (1 - sigma)) / (1 - sigma) + beta * np.dot(Value_Function[a_next[0], :], e_probs[e_start_index, :])
             
-        # Check if this capital choice gives highest Value Function value.
+        # Check if this capital choice gives the highest Value Function value.
         if new_v_max > v_max:
         
             # Update candidate values.
             v_max = new_v_max
             a_next_optimal = a_next[1]
-            a_next_optimal_index   = a_next[0]
+            a_next_optimal_index = a_next[0]
     
     return v_max, a_next_optimal, a_next_optimal_index
 
@@ -81,7 +79,7 @@ def Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params)
 # -----------------------------------------------------------------------------------------------------
 from numba import jit
 
-@jit(nopython=True)
+#@jit(nopython=True)
 def Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params):
 
     # Unpack utility parameters and grids.
@@ -94,17 +92,18 @@ def Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params)
     a_start = a_grid[a_start_index]
     e_start = e_grid[e_start_index]
        
-    # Vector of consumption values dictated by credit selection.
+    # Vector of consumption values dictated by possible next period borrowing choices.
     Consumption = a_start + e_start - q*a_grid
     valid_indices = (Consumption > 0)
     
-    # Calculate value function values.
-    V_max_values = np.power(Consumption[valid_indices], (1-sigma)) / (1-sigma) + beta*np.dot(Value_Function[(valid_indices),:], e_probs[e_start_index,:])
+    # Calculate the Value Function values.
+    V_max_values = ( (np.power(Consumption[valid_indices], (1 - sigma)) / (1 - sigma)) 
+                    + beta * np.dot(Value_Function[(valid_indices), :], e_probs[e_start_index, :]))
 
-    # Get index of optimal credit choice within the vector of valid indices.
+    # Get the index of the optimal credit choice within the vector of valid indices.
     optimal_subindex = np.argmax(V_max_values)
     
-    # Get values and original index of optimal value.
+    # Get the values and original index of the optimal value.
     a_next_optimal = (a_grid[valid_indices])[optimal_subindex]
     v_max = V_max_values[optimal_subindex]
     a_next_optimal_index = np.where(a_grid == a_next_optimal)[0][0]
@@ -113,10 +112,10 @@ def Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params)
 
 """
 # -----------------------------------------------------------------------------------------------------
-# Function 2 - Solve for Value Function and Policy Function.
+# Function 2 - Solve for the Value Function and Policy Function.
 # -----------------------------------------------------------------------------------------------------
 Solves for the Value Function and Policy Function using value function iteration.
-Applies Solve Household Problem to all possible starting states for each iteration.
+Applies the Solve Household Problem function to all possible starting states for each iteration.
 Search parameters (max iterations, tolerance, etc.) are defined in the function.
 
 Input:
@@ -129,7 +128,7 @@ Output:
 """
 from numba import jit
 
-@jit(nopython=True)
+#@jit(nopython=True)
 def Solve_Value_Function(q, params):
        
     # Unpack relevant parameters.
@@ -151,16 +150,16 @@ def Solve_Value_Function(q, params):
     max_iterations = 5000
     tolerance = 1e-6
     
-    # Solve for Value Function and Policy Function.
+    # Solve for the Value Function and Policy Function.
     while (dist > tolerance) & (iteration_count < max_iterations):
               
         # Loop over all possible starting states.
         for a_start_index in range(number_of_a_values):
             for e_start_index in range(number_of_e_values):
                             
-                # Solve Value Function and Policy Function and update values.
-                V, g, g_index = Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params) 
-                #V, g, g_index = Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params)
+                # Solve the Value Function and Policy Function and update values.
+                #V, g, g_index = Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params) 
+                V, g, g_index = Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params)
 
                 Value_Function_New[a_start_index, e_start_index] = V
                 Policy_Function_New[a_start_index, e_start_index] = g
@@ -170,7 +169,7 @@ def Solve_Value_Function(q, params):
         dist = np.abs(Value_Function - Value_Function_New).max()
         iteration_count += 1
         
-        # Update Value Function.
+        # Update the Value Function and Policy Function.
         Value_Function = Value_Function_New.copy()
         Policy_Function = Policy_Function_New.copy()
         Policy_Function_Index = Policy_Function_Index_New.copy()
@@ -183,9 +182,9 @@ def Solve_Value_Function(q, params):
 
 """
 # -----------------------------------------------------------------------------------------------------
-# Function 3 - Version 1 - Get Population Distribution from Policy Function.
+# Function 3 - Get Population Distribution from Policy Function.
 # -----------------------------------------------------------------------------------------------------
-Solves for the steady state distribution over credit and endowment states given
+Solves for the steady-state distribution over credit and endowment states given
 a policy function (with index values).
 Search parameters (max iterations, tolerance, etc.) are defined in the function.
 
@@ -200,7 +199,7 @@ from numba import jit
 @jit(nopython=True)
 def Get_Population_Distribution(Policy_Function_Index, params):
       
-    # Unpack key varaibles.
+    # Unpack relevant parameters.
     number_of_a_values = params.number_of_a_values
     number_of_e_values = params.number_of_e_values
     e_probs = params.e_probs
@@ -208,7 +207,7 @@ def Get_Population_Distribution(Policy_Function_Index, params):
     # Optional: create local copy of e_probs that is contiguous on column slices (numerically identical).
     #e_probs = e_probs.copy(order='F') 
 
-    # Arrays to store 2 iterations of finding population distribution.    
+    # Arrays to store 2 iterations of finding the population distribution.    
     Population_Distribution = np.ones((number_of_a_values, number_of_e_values)) / (number_of_a_values * number_of_e_values)
     New_Distribution = Population_Distribution.copy()
     
@@ -218,14 +217,14 @@ def Get_Population_Distribution(Policy_Function_Index, params):
     max_iterations = 5000
     tolerance = 1e-10
     
-    # Solve for population distribution.
+    # Solve for the steady-state Population Distribution.
     while (dist > tolerance) & (iteration_count < max_iterations):
         
-        # Get "inflow" to each credit-endowment state in next period.
+        # Get "inflow" to each credit-endowment state in the next period.
         for a_index in range(number_of_a_values):
             for e_index in range(number_of_e_values):
                 
-                # Get indices of states that flow into given state.               
+                # Get indices of states that flow into the given state.               
                 inflow_indices = np.zeros((number_of_a_values, number_of_e_values))
                 for a_index_inflow in range(number_of_a_values):
                     for e_index_inflow in range(number_of_e_values):
@@ -235,7 +234,7 @@ def Get_Population_Distribution(Policy_Function_Index, params):
                 # Alternative if not using numba precompiling. Approximately the same speed as numba.
                 #inflow_indices = (Policy_Function_Index == a_index).astype(float)                
                 
-                # Sum distribution-weighted inflow into given state.
+                # Sum the distribution-weighted inflow into the given state.
                 inflow = (np.multiply(Population_Distribution, e_probs[:,e_index]) * inflow_indices).sum()    
                 New_Distribution[a_index, e_index] = inflow
 
@@ -243,7 +242,7 @@ def Get_Population_Distribution(Policy_Function_Index, params):
         dist = np.abs(Population_Distribution - New_Distribution).max()
         iteration_count += 1
         
-        # Update population distribution.
+        # Update the Population Distribution.
         Population_Distribution = New_Distribution.copy()
                 
         # Print warning if convergence is not achieved.
