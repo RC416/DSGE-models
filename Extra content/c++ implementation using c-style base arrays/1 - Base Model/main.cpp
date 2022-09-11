@@ -1,4 +1,4 @@
-// Base Model implementation in c++.
+// Base Model implementation in C++.
 
 #include <iostream>
 #include <cmath>
