@@ -7,15 +7,15 @@ program main
     ! Declaration Section.
 
     ! Double precision variables.
-    real(8), parameter  :: alpha    = 0.400
-    real(8), parameter  :: beta     = 0.987
-    real(8), parameter  :: delta    = 1.000
+    real(8), parameter :: alpha = 0.400
+    real(8), parameter :: beta  = 0.987
+    real(8), parameter :: delta = 1.000
     real(8) :: k_steady, k_pct_low, k_pct_high
     real(8) :: v_max, kt1_optimal, new_value_function_value
     
     ! Integer variables.
-    integer, parameter  :: number_of_iterations = 1000
-    integer, parameter  :: number_of_k_values   = 201
+    integer, parameter :: number_of_iterations = 1000
+    integer, parameter :: number_of_k_values   = 201
     integer :: i
     integer :: iteration, kt0_index, kt1_index
 
@@ -27,7 +27,7 @@ program main
     ! Execution Section.
 
     ! Calculate the steady-state level of capital.
-    k_steady = ((1-beta*(1-delta))/(alpha*beta*1)) ** (1/(alpha-1))
+    k_steady = ((1 - beta * (1 - delta)) / (alpha * beta)) ** (1 / (alpha - 1))
 
     ! Create grid of capital values around steady-state (+/- 50%).
     k_pct_low = 0.50

@@ -1,4 +1,4 @@
-% Function to perform an iteration of value function iteration.
+% Function to solve the household's problem for a given starting state.
 % Two different versions with increasing levels of performance.
 % Each version has identical inputs and outputs.
 % This version uses only for-loops.
@@ -15,7 +15,7 @@
 %     v1: using only base functions + for-loops
 %     v2: using broadcast/vectorized calculation instead of for-loop
 
-function [v_max, kt1_optimal] = Iterate_Value_Function_v1(Previous_Value_Function, kt0_index, zt_index, params)
+function [v_max, kt1_optimal] = Solve_HH_Problem_v1(Previous_Value_Function, kt0_index, zt_index, params)
 
 % Unpack utility parameters and grids.
 alpha = params.alpha;
@@ -29,20 +29,21 @@ z_probs = params.z_probs;
 kt0 = k_values(kt0_index);
 zt = z_values(zt_index);
 
-% Variables to store candidate optimal values for Value Function and Policy Function.
+% Variables to store candidate optimal values for the Value Function and Policy Function.
 v_max = -Inf;
 kt1_optimal = 0.0;
 
-% Search over possible next period capital choices.
+% Check all possible next period capital choices.
 for kt1_index = 1:size(k_values,1)
     
     % Get capital value from index.
     kt1 = k_values(kt1_index);
 
-    % Calculate value function for given choice of next period capital.
-    new_v_max = log(zt*(kt0^alpha) + (1-delta)*kt0 - kt1) + beta*dot(Previous_Value_Function(kt1_index,:),z_probs(zt_index,:));
+    % Calculate the Value Function for given starting capital and next period capital choice.
+    new_v_max = log(zt * (kt0 ^ alpha) + (1 - delta) * kt0 - kt1) + ...
+        beta * dot(Previous_Value_Function(kt1_index, :), z_probs(zt_index, :));
 
-    % Check if this capital choice gives highest Value Function value.
+    % Check if this capital choice gives the highest Value Function value.
     if new_v_max > v_max
     
         % Update candidate values.
@@ -50,4 +51,3 @@ for kt1_index = 1:size(k_values,1)
         kt1_optimal = kt1;
     end
 end
-

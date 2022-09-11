@@ -6,12 +6,22 @@
 #include <sstream>
 #include <cassert>
 
-// Function to solve Value Function for given starting states.
-void Iterate_Value_Function(double*** Value_Function, double*** Policy_Function, int iteration, int kt0_index, int zt_index, Parameters params)
+// Function to solve the household's problem for a given starting state.
+void Solve_HH_Problem(double*** Value_Function, double*** Policy_Function, int iteration, int kt0_index, int zt_index, Parameters params)
 {
+	// Unpack utility parameters and grids.
+	double alpha = params.alpha;
+	double beta = params.beta;
+	double delta = params.delta;
+	double* k_values = params.k_values;
+	double* z_values = params.z_values;
+	double** z_probs = params.z_probs;
+	int number_of_k_values = params.number_of_k_values;
+	int number_of_z_values = params.number_of_z_values;
+
 	// Get starting capital and productivity values from index.
-	double kt0 = params.k_values[kt0_index];
-	double zt = params.z_values[zt_index];
+	double kt0 = k_values[kt0_index];
+	double zt = z_values[zt_index];
 
 	// Variables to store candidate optimal values.
 	double v_max = -DBL_MAX;
@@ -23,7 +33,7 @@ void Iterate_Value_Function(double*** Value_Function, double*** Policy_Function,
 		// Get capital value from index.
 		double kt1 = params.k_values[kt1_index];
 
-		// Calculate value function for given choice of next period capital.
+		// Calculate value function for a given next period capital choice.
 		double current_period_payoff, future_period_payoff;
 
 		current_period_payoff = log((zt * pow(kt0, params.alpha)) + ((1 - params.delta) * kt0) - kt1);
@@ -36,7 +46,7 @@ void Iterate_Value_Function(double*** Value_Function, double*** Policy_Function,
 
 		new_v_max = current_period_payoff + params.beta * future_period_payoff;
 
-		// Check if this capital choice gives highest Value Function value.
+		// Check if this capital choice gives the highest Value Function value.
 		if (new_v_max > v_max)
 		{
 			// Update candidate values.
@@ -45,7 +55,7 @@ void Iterate_Value_Function(double*** Value_Function, double*** Policy_Function,
 		}
 	}
 
-	// Update Value Function and Policy Function with optimal values.
+	// Update the Value Function and Policy Function with optimal values.
 	Value_Function[iteration][kt0_index][zt_index] = v_max;
 	Policy_Function[iteration][kt0_index][zt_index] = kt1_optimal;
 }
@@ -55,7 +65,7 @@ double*** InitializeArray3D(int size_dim_1, int size_dim_2, int size_dim_3)
 {
 	double*** Array3D;								// create pointer variable for start of array
 
-	Array3D = new double** [size_dim_1];		// allocate vector of pointers for dimension 1 that will point to dimension 2 vectors
+	Array3D = new double** [size_dim_1];			// allocate vector of pointers for dimension 1 that will point to dimension 2 vectors
 
 	for (int i = 0; i < size_dim_1; i++)
 	{
@@ -87,12 +97,11 @@ void DeleteArray3D(double*** Array3D, int size_dim_1, int size_dim_2, int size_d
 double** InitializeArray2D(int n_rows, int n_cols)
 {
 	double** Array2D;
-	Array2D = new double* [n_rows];		// create rows of pointers
+	Array2D = new double* [n_rows];					// create rows of pointers
 	for (int i = 0; i < n_rows; i++)
 	{
-		Array2D[i] = new double[n_cols];	// create column of pointers for each row
+		Array2D[i] = new double[n_cols];			// create column of pointers for each row
 	}
-
 	return Array2D;
 }
 
@@ -124,11 +133,10 @@ void WriteArrayToCSV(double** Array2D, int n_rows, int n_cols, const char* file_
 }
 
 // Function to read a 2-dimensional array from csv file.
-// Uses std::vector so that csv array dimensions do not need to be specified.
-std::vector<std::vector<double>> ReadArrayFromCSV(std::string path)
+double** ReadArrayFromCSV(std::string path)
 {
 	// Vector of vectors to store csv conents.
-	std::vector<std::vector<double>> Content;
+	std::vector<std::vector<double>> content_array;
 	std::vector<double> row;
 	std::string line, values;
 
@@ -136,30 +144,93 @@ std::vector<std::vector<double>> ReadArrayFromCSV(std::string path)
 	std::fstream file(path, std::ios::in);
 	assert(file.is_open());
 
+	// Get data from a specific row.
 	while (getline(file, line))
 	{
 		row.clear();
 
 		std::stringstream row_string(line);
 
+		// Get the individual values from each column
 		while (getline(row_string, values, ','))
 		{
 			row.push_back(std::stod(values));		// get values in each row, and convert from string to double with stod()
 		}
-		Content.push_back(row);							// add row to content array.
+		content_array.push_back(row);				// add row to content array.
 	}
 
-	/*
-	// Print array.
-	for (int i = 0; i < Content.size(); i++)
+	// Convert from std::vector to base dynamic array.
+	int n_rows = content_array.size();
+	int n_cols = content_array[0].size();
+	double** Base_array = InitializeArray2D(n_rows, n_cols);
+
+	for (int i = 0; i < n_rows; i++)
 	{
-		for (int j = 0; j < Content[0].size(); j++)
+		for (int j = 0; j < n_cols; j++)
 		{
-			std::cout << Content[i][j] << " ";
+			Base_array[i][j] = content_array[i][j];
 		}
-		std::cout << "\n";
 	}
-	*/
+	return Base_array;
+}
 
-	return Content;
+// Function to read a vector from csv file (stored column-wise).
+double* ReadVectorFromCSV(std::string path)
+{
+	// Vector of vectors to store csv conents.
+	std::vector<double> content_vector;
+	std::string value;
+
+	// Load file.
+	std::fstream file(path, std::ios::in);
+	assert(file.is_open());
+
+	// Go through each row
+	while (getline(file, value))
+	{
+		// Get element, convert to double, and add to the output vector.
+		content_vector.push_back(std::stod(value));
+	}
+
+	// Convert from std::vector to base dynamic array.
+	int n_rows = content_vector.size();
+	double* base_vector = new double[n_rows];
+
+	for (int i = 0; i < n_rows; i++)
+	{
+		base_vector[i] = content_vector[i];
+	}
+	
+	return base_vector;
+}
+
+// Alternative: read an array from file and write to a given static array.
+template<size_t n_rows, size_t n_cols>
+void ReadArrayFromCSV(std::string path, double(&Static_Array)[n_rows][n_cols])
+{
+	// Read array from file.
+	double** Dynamic_Array = ReadArrayFromCSV(path);
+
+	// Write to given array.
+	for (int i = 0; i < n_rows; i++)
+	{
+		for (int j = 0; j < n_cols; j++)
+		{
+			Static_Array[i][j] = Dynamic_Array[i][j];
+		}
+	}
+}
+
+// Alternative: read a vector from file and write to a given static vector.
+template<size_t n_rows>
+void ReadVectorFromCSV(std::string path, double(&static_vector)[n_rows])
+{
+	// Read vector from file.
+	double* dynamic_vector = ReadVectorFromCSV(path);
+
+	// Write to given vector.
+	for (int i = 0; i < n_rows; i++)
+	{
+		static_vector[i] = dynamic_vector[i];
+	}
 }
