@@ -1,4 +1,5 @@
 ! Idiosyncratic Endowment model implemented in Fortran (2008).
+!
 ! Steps:
 !    1 - Define utility parameters, grids, and parameter struct.
 !    2 - Solve model and get market bond price using binary search.
@@ -123,8 +124,6 @@ program main
 end program
 
 ! Compilier instructions.
-! debug: gfortran src/custom_functions.f08 src/main.f08 -g -O0 -Wall -o build.exe
-! release: gfortran src/custom_functions.f08 src/main.f08 -O3 -o build.exe
 
 ! Debug and profiling:
 ! gfortran -g -O0 -Wall -pg -o obj/custom_functions.o -c src/custom_functions.f08
