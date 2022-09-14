@@ -15,7 +15,7 @@
 %     v1: using only base functions + for-loops
 %     v2: using broadcast/vectorized calculation instead of for-loop
 
-function [v_max, kt1_optimal] = Solve_HH_Problem_v1(Previous_Value_Function, kt0_index, zt_index, params)
+function [v_max, kt1_optimal] = Solve_HH_Problem_v1(Value_Function, kt0_index, zt_index, params)
 
 % Unpack utility parameters and grids.
 alpha = params.alpha;
@@ -41,7 +41,7 @@ for kt1_index = 1:size(k_values,1)
 
     % Calculate the Value Function for given starting capital and next period capital choice.
     new_v_max = log(zt * (kt0 ^ alpha) + (1 - delta) * kt0 - kt1) + ...
-        beta * dot(Previous_Value_Function(kt1_index, :), z_probs(zt_index, :));
+        beta * dot(Value_Function(kt1_index, :), z_probs(zt_index, :));
 
     % Check if this capital choice gives the highest Value Function value.
     if new_v_max > v_max

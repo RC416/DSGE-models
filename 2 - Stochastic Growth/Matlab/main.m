@@ -46,8 +46,8 @@ for iteration = 2:number_of_iterations
         for zt_index = 1:number_of_z_values
 
             % Solve the Value Function and Policy Function and update values.
-            %[V, g] = Solve_HH_Problem_v1(Value_Function(:, :, iteration - 1), kt0_index, zt_index, params);
-            [V, g] = Solve_HH_Problem_v2(Value_Function(:, :, iteration - 1), kt0_index, zt_index, params);
+            [V, g] = Solve_HH_Problem_v1(Value_Function(:, :, iteration - 1), kt0_index, zt_index, params);
+            %[V, g] = Solve_HH_Problem_v2(Value_Function(:, :, iteration - 1), kt0_index, zt_index, params);
     
             Value_Function(kt0_index, zt_index, iteration) = V;
             Policy_Function( kt0_index, zt_index, iteration) = g;

@@ -1,0 +1,16 @@
+{
+    // Launches the debugger from GDB Debug extension.
+    // Must point to gdb.exe debugger file in mingw install.
+    // Must point to the right file to debug (usually compiled main)
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "cppdbg",
+            "request": "launch",
+            "name": "Launch(gdb)",
+            "program": "${workspaceRoot}/build.exe",
+            "cwd": "${workspaceRoot}",
+            "miDebuggerPath" : "C:/msys64/mingw64/bin/gdb.exe"
+        }
+    ]
+}

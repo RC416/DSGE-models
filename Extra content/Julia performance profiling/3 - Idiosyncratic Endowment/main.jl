@@ -11,9 +11,22 @@ Steps:
     3 - Plot results.
 =#
 
+using Plots
 include("custom_functions.jl")
 using .custom_functions
 
+# Store parameters in a struct for passing to a function.
+struct Parameters
+    σ::Float64
+    β::Float64
+    a_grid::Array{Float64, 1}
+    e_grid::Array{Float64, 1}
+    e_probs::Array{Float64, 2}
+    number_of_a_values::Int64
+    number_of_e_values::Int64
+end
+
+function main()
 # -----------------------------------------------------------------------------------------------------
 # 1 - Define utility parameters, grids, and parameter struct.
 # -----------------------------------------------------------------------------------------------------
@@ -34,17 +47,6 @@ a_high = 4;                                                 # upper credit limit
 a_low  = -2;                                                # lower credit limit / borrowing constraint
 number_of_a_values = 100;                                   # credit grid size
 a_grid = LinRange(a_low, a_high, number_of_a_values);       # credit grid
-
-# Store parameters in a struct for passing to a function.
-struct Parameters
-    σ::Float64
-    β::Float64
-    a_grid::Array{Float64, 1}
-    e_grid::Array{Float64, 1}
-    e_probs::Array{Float64, 2}
-    number_of_a_values::Int64
-    number_of_e_values::Int64
-end
 
 params = Parameters(σ, β, a_grid, e_grid, e_probs, number_of_a_values, number_of_e_values);
 
@@ -72,7 +74,7 @@ global tolerance = 1e-3;
 while (dist > tolerance) & (iteration_count < max_iterations)
 
     # Get value of q from middle of range.
-    q = (q_min + q_max)/2;
+    global q = (q_min + q_max)/2;
 
     # Solve for the Value Function and Policy Function.
     global Value_Function, Policy_Function, Policy_Function_Index = Solve_Value_Function(q, params);
@@ -100,7 +102,6 @@ end
 # -----------------------------------------------------------------------------------------------------
 # 3 - Plot results.
 # ----------------------------------------------------------------------------------------------------- 
-using Plots
 
 # Policy functions (Figure 1. from Huggett 1993).
 Figure1 = plot(legend=:bottomright)
@@ -118,3 +119,12 @@ plot!(a_grid, cumsum(Population_Distribution[:, 2]), label="high entitlement")
 plot!(a_grid, cumsum(Population_Distribution[:, 1]), label="low entitlement")
 xlabel!("starting credit level")
 title!("Cumulative Distribution Function for Credit Level")
+end
+
+# Benchmarking and profiling.
+using Profile
+using BenchmarkTools
+
+@btime main()
+@profview main()
+# https://www.julia-vscode.org/docs/dev/userguide/profiler/

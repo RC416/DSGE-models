@@ -8,8 +8,25 @@ Steps:
     4 - Plot results.
 =#
 
-function main()
+# Import modules and declare struct.
+using DelimitedFiles
+using Plots
+cd("C:\\Users\\Ray\\Documents\\GitHub\\DSGE-models\\Extra content\\Julia performance profiling\\2 - Stochastic Growth")
+include("custom_functions.jl")
+using .custom_functions
 
+# Store utility parameters and capital/productivity grids in a struct for passing to a function.
+struct Parameters
+    α::Float64
+    β::Float64
+    δ::Float64
+    k_values::Array{Float64, 1} # == Vector{Float64}
+    z_values::Array{Float64, 1} # == Vector{Float64}
+    z_probs::Array{Float64, 2}  # == Matrix{Float64} 
+end
+
+
+function main()
 # -----------------------------------------------------------------------------------------------------
 # 1 - Define utility parameters, grids, and parameter struct.
 # -----------------------------------------------------------------------------------------------------
@@ -29,8 +46,6 @@ k_high_pct = 1.02;
 k_values = collect(range(k_low_pct * k_steady, k_high_pct * k_steady, length=number_of_k_values));
 
 # Get productivity levels and transition probabilities.
-using DelimitedFiles
-cd("C:\\Users\\Ray\\Documents\\GitHub\\DSGE-models\\2 - Stochastic Growth\\Julia")
 z_probs = readdlm("Inputs\\z_probs.csv", ',', Float64);
 z_values = readdlm("Inputs\\z_values.csv", ',', Float64)[:, 1];
 number_of_z_values = size(z_values, 1);
@@ -39,64 +54,25 @@ number_of_z_values = size(z_values, 1);
 Value_Function = zeros(number_of_iterations, number_of_k_values, number_of_z_values);
 Policy_Function = zeros(number_of_iterations, number_of_k_values, number_of_z_values);
 
-# Store utility parameters and capital/productivity grids in a struct for passing to a function.
-struct Parameters
-    α::Float64
-    β::Float64
-    δ::Float64
-    k_values::Array{Float64, 1} # == Vector{Float64}
-    z_values::Array{Float64, 1} # == Vector{Float64}
-    z_probs::Array{Float64, 2}  # == Matrix{Float64} 
-end
-
 params = Parameters(α, β, δ, k_values, z_values, z_probs);
-
-# -----------------------------------------------------------------------------------------------------
-# 2 - Create a function to solve the household's problem for a given starting state.
-# -----------------------------------------------------------------------------------------------------
-function Solve_HH_Problem(Value_Function, kt0_index, zt_index, params)
-
-    # Unpack utility parameters and grids.
-    α,β,δ = params.α, params.β, params.δ;
-    k_values = params.k_values;
-    z_values = params.z_values;
-    z_probs = params.z_probs;
-
-    # Get capital and productivity values from index.
-    kt0 = k_values[kt0_index];
-    zt = z_values[zt_index];
-
-    # Calculate array of value function values for all capital values.
-    @views V_max_values = log.(zt * (kt0 ^ α) + (1 - δ) * kt0 .- k_values) + β * (Previous_Value_Function * z_probs[zt_index, :]);
-
-    # Get index for the optimal capital choice.
-    kt1_index_optimal = argmax(V_max_values);
-
-    # Get the Value Function and Policy Function values.
-    kt1_optimal = k_values[kt1_index_optimal];
-    v_max = V_max_values[kt1_index_optimal];
-
-    return v_max, kt1_optimal;
-end
-
-# Alternative: import other versions from module.
-#include("custom_functions.jl")
-#using .custom_functions
 
 # -----------------------------------------------------------------------------------------------------
 # 3 - Perform value function iteration.
 # -----------------------------------------------------------------------------------------------------
-for iteration in 2:number_of_iterations	
+for iteration in 2:number_of_iterations
 
     # Loop over all possible starting states.
-    for zt_index in eachindex(z_values) 		# replace for parllel implementation: Threads.@threads for zt_index in eachindex(z_values)
-        for kt0_index in eachindex(k_values)
+    #for kt0_index in eachindex(k_values), zt_index in eachindex(z_values) # single-thread implementation
+    Threads.@threads for zt_index in eachindex(z_values)                   # multi-thread implementation
+        for kt0_index in eachindex(k_values)                               # multi-thread implementation
 
         # Solve the Value Function and Policy Function and update values.
-        @views V, g = Solve_HH_Problem(Value_Function[iteration-1, :, :], kt0_index, zt_index, params);
+        @views V, g = Solve_HH_Problem_v1(Value_Function[iteration-1, :, :], kt0_index, zt_index, params);
+        #@views V, g = Solve_HH_Problem_v2(Value_Function[iteration-1, :, :], kt0_index, zt_index, params);
 
         Value_Function[iteration, kt0_index, zt_index] = V;
         Policy_Function[iteration, kt0_index, zt_index] = g;
+        end
     end
 end
 
@@ -123,3 +99,11 @@ title!("Policy Function")
 display(Figure2)
 
 end
+
+# Benchmarking and profiling.
+using Profile
+using BenchmarkTools
+
+@btime main()
+@profview main()
+# https://www.julia-vscode.org/docs/dev/userguide/profiler/

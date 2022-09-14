@@ -156,8 +156,8 @@ function Solve_Value_Function(q, params)
             for e_start_index in eachindex(e_grid)
                             
                 # Solve the Value Function and Policy Function and update values.
-                V, g, g_index = Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params);
-                #V, g, g_index = Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params);
+                #V, g, g_index = Solve_HH_Problem_v1(q, a_start_index, e_start_index, Value_Function, params);
+                V, g, g_index = Solve_HH_Problem_v2(q, a_start_index, e_start_index, Value_Function, params);
 
                 Value_Function_New[a_start_index, e_start_index] = V;
                 Policy_Function_New[a_start_index, e_start_index] = g;

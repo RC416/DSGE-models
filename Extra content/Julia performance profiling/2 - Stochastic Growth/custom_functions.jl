@@ -16,7 +16,7 @@ Version
     v2: using broadcast/vectorized calculation instead of for-loop
 =#
 
-module iteration_functions
+module custom_functions
 export Solve_HH_Problem_v1, Solve_HH_Problem_v2
 using LinearAlgebra
 
@@ -46,7 +46,8 @@ function Solve_HH_Problem_v1(Value_Function, kt0_index, zt_index, params)
         kt1 = k_values[kt1_index];
 
         # Calculate the Value Function for given starting capital and next period capital choice.
-        @views new_v_max = log(zt * (kt0 ^ α) + (1 - δ) * kt0 - kt1) + β * dot(Value_Function[kt1_index, :], z_probs[zt_index, :]);
+        @views new_v_max = log(zt * (kt0 ^ α) + (1 - δ) * kt0 - kt1) +
+                             β * dot(Value_Function[kt1_index, :], z_probs[zt_index, :]);
 
         # Check if this capital choice gives the highest Value Function value.
         if new_v_max > v_max
@@ -76,7 +77,7 @@ function Solve_HH_Problem_v2(Value_Function, kt0_index, zt_index, params)
     zt = z_values[zt_index];
 
     # Calculate array of value function values for all next period capital choices.
-    @views V_max_values = log.(zt * (kt0 ^ α) + (1 - δ) * kt0 .- k_values) + β * (Value_Function * z_probs[zt_index, :]);
+    @views V_max_values = log.((zt * (kt0 ^ α) + (1 - δ) * kt0) .- k_values) + β * (Value_Function * z_probs[zt_index, :]);
 
     # Get index for the optimal capital choice.
     kt1_index_optimal = argmax(V_max_values);
