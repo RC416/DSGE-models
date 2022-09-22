@@ -5,9 +5,9 @@
 # Compiler settings - Can be customized.
 CC = gfortran
 CPP = gfortran -cpp
-#CXXFLAGS = -g -O0 -Wall -fopenmp -pg 	# debug mode
-CXXFLAGS = -O3 -fopenmp			# release mode
-CXXFLAGS = -O3 -fopenmp	-pg		# release mode with profiling
+#CXXFLAGS = -g -O0 -Wall -fopenmp -pg 		# debug mode
+CXXFLAGS = -O3 -fopenmp				# release mode
+#CXXFLAGS = -O3 -fopenmp	-pg		# release mode with profiling
 LDFLAGS = 
 
 # Makefile settings - Can be customized.
