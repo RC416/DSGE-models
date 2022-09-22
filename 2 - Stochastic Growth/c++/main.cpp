@@ -1,5 +1,5 @@
 /*
-Stochastic Growth Model implemented in c++.
+Stochastic Growth Model implemented in C++.
 
 Steps:
 	1 - Define utility parameters, grids, and parameter struct.
@@ -60,6 +60,9 @@ int main()
 	// Perform value function iteration.
 	for (int iteration = 1; iteration < number_of_iterations; iteration++)
 	{
+		// Run the following for-loop in parallel if OpenMP is enabled.
+		#pragma omp parallel for
+		
 		// Loop over all possible starting states.
 		for (int kt0_index = 0; kt0_index < number_of_k_values; kt0_index++)
 		{

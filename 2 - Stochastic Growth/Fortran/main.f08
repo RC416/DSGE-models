@@ -66,6 +66,9 @@ program main
     ! Perform value function iteration.
     do iteration = 2, number_of_iterations
         
+        ! Run the following do-loop in parallel if OpenMP is enabled.
+        !$OMP parallel do
+
         ! Loop over all possible starting states.
         do kt0_index = 1, number_of_k_values
             do zt_index = 1, number_of_z_values
@@ -74,6 +77,9 @@ program main
                 call Solve_HH_Problem(Value_Function, Policy_Function, iteration, kt0_index, zt_index, params)
             end do 
         end do
+
+        ! Run the above do-loop in parallel if OpenMP is enabled.
+        !$OMP end parallel do
     end do
 
     ! Write the final Value Function and Policy Function to csv files.
@@ -94,6 +100,6 @@ program main
 end program
 
 ! Compilier instructions.
-! debug mode: gfortran src/custom_functions.f08 src/main.f08 -g -O0 -Wall -o start build.exe
-! release mode: gfortran src/custom_functions.f08 src/main.f08 -O3 -o start build.exe
+! debug mode: gfortran src/custom_functions.f08 src/main.f08 -g -O0 -Wall -fopenmp -o build.exe
+! release mode: gfortran src/custom_functions.f08 src/main.f08 -O3 -fopenmp -o build.exe
 ! run program: start build
