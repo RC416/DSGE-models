@@ -17,7 +17,8 @@ Notes on multi-threaded implementation
 	- Threads are stored in a list and must be terminated before passing to the next iteration.
 	- Threads are created and destroyed in each iteration. This avoids the need for additional code
 	or packages to manage threads, but introduces additional overhead.
-	- Net improvement is ~4x (uses up to 85% of 6-core 12-thread CPU)
+	- Net improvement is ~4x (uses up to 85% of 6-core 12-thread CPU).
+	- Requires custom_functions.h and custom_functions.cpp from the Stochastic Growth Model.
 */
 
 #include "custom_functions.h"
